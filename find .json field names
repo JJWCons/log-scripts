@@ -1,0 +1,19 @@
+import json
+
+# Storage for unique field names
+field_names = set()
+
+# Open and parse JSON log file line-by-line
+logfile_path = "LOGFILE NAME"  # Replace with your actual file path
+with open(logfile_path, "r", encoding="utf-8") as f:
+    for line in f:
+        try:
+            entry = json.loads(line.strip())  # Load JSON line-by-line
+            field_names.update(entry.keys())  # Collect unique field names
+        except json.JSONDecodeError:
+            pass  # Skip malformed JSON lines
+
+# Print list of field names
+print("\n🔍 **Fields Present in the JSON File:**")
+for field in sorted(field_names):  # Display sorted field names for clarity
+    print(f"- {field}")
