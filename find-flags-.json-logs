@@ -1,0 +1,35 @@
+import json
+from collections import Counter
+
+# Define TCP flag patterns (SYN, ACK, FIN, etc.)
+tcp_flags = ["SYN", "ACK", "FIN", "RST"]
+
+# Target IP to analyze
+target_ip = "185.193.88.223"
+
+# Storage for TCP flag occurrences
+flag_counts = Counter()
+
+# Open JSON log file and search for TCP activity
+with open("webhoneypot-2025-04-29.json") as f:
+    for line in f:
+        try:
+            entry = json.loads(line.strip())  # Load JSON line-by-line
+            
+            # Ensure we're analyzing only logs for the target IP
+            if entry.get("sip") == target_ip:
+                
+                # Check if TCP flags are present in log fields
+                if "flags" in entry and isinstance(entry["flags"], str):
+                    for flag in tcp_flags:
+                        if flag in entry["flags"]:
+                            flag_counts[flag] += 1
+
+        except json.JSONDecodeError:
+            pass  # Skip malformed JSON lines
+
+# Print TCP activity summary
+print(f"\n🔍 **TCP Flag Analysis for {target_ip}**:")
+for flag, count in flag_counts.most_common():
+    print(f"{flag}: {count} occurrences")
+
