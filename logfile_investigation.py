@@ -130,10 +130,9 @@ print(f"\n🧮 **Total Unique IP Addresses:** {total_unique_ips}")
 
 # Print general security event summary
 print("\n🔍 **General Security Event Summary Across All IPs:**")
-
+total_hashes = sum(sum(hash_counts.values()) for hash_counts in hash_summary.values())
+total_credential_attempts = sum(credential_summary["Usernames"].values()) + sum(credential_summary["Passwords"].values())
 total_requests = sum(sum(data["request_methods"].values()) for ip, data in ip_activity.items())
-total_hashes = sum(len(hashes) for ip, data in ip_activity.items() for hashes in data["detected_hashes"].values())
-total_credential_attempts = sum(len(data["credential_attempts"]) for ip, data in ip_activity.items())
 
 print(f"✔ Total requests: {total_requests}")
 print(f"✔ Total detected hashes: {total_hashes}")
