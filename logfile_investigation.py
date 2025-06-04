@@ -63,15 +63,9 @@ with open(logfile_path, "r", encoding="utf-8") as f:
             # Track events per IP
             method = entry.get("method", "UNKNOWN").strip().upper()
 
-            # Normalize method names to remove inconsistencies
-            if method in ["GET", "GET "]:  # Handles accidental spacing variations
+            # Normalize "GET" requests (removes extra spaces and variations)
+            if method.startswith("GET"):
                 method = "GET"
-            elif method in ["POST", "POST "]:
-                method = "POST"
-            elif method in ["CONNECT", "CONNECT "]:
-                method = "CONNECT"
-            elif method in ["OPTIONS", "OPTIONS "]:
-                method = "OPTIONS"
 
             ip_activity[sip]["request_methods"][method] += 1
 
@@ -150,10 +144,13 @@ method_summary = Counter()
 for data in ip_activity.values():
     method_summary.update(data["request_methods"])
 
-# Ensure method names are consistent before displaying
+# Merge duplicate method names before display
 cleaned_methods = Counter()
 for method, count in method_summary.items():
-    cleaned_methods[method.strip().upper()] += count  # Normalize casing and remove duplicates
+    normalized_method = method.strip().upper()
+    if normalized_method.startswith("GET"):  # Ensures only one "GET"
+        normalized_method = "GET"
+    cleaned_methods[normalized_method] += count
 
 for method, count in cleaned_methods.items():
     print(f"  {method}: {count} requests")
