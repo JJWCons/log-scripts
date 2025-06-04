@@ -63,14 +63,14 @@ with open(logfile_path, "r", encoding="utf-8") as f:
             # Track events per IP
             method = entry.get("method", "UNKNOWN").strip().upper()
 
-            # Normalize method names to prevent duplicates
-            if method.startswith("GET"):
+            # Normalize method names to remove inconsistencies
+            if method in ["GET", "GET "]:  # Handles accidental spacing variations
                 method = "GET"
-            elif method.startswith("POST"):
+            elif method in ["POST", "POST "]:
                 method = "POST"
-            elif method.startswith("CONNECT"):
+            elif method in ["CONNECT", "CONNECT "]:
                 method = "CONNECT"
-            elif method.startswith("OPTIONS"):
+            elif method in ["OPTIONS", "OPTIONS "]:
                 method = "OPTIONS"
 
             ip_activity[sip]["request_methods"][method] += 1
