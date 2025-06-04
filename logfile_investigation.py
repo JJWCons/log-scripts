@@ -58,7 +58,7 @@ with open(logfile_path, "r", encoding="utf-8") as f:
             sip = entry.get("sip", "").strip()
 
             if not sip:
-            continue
+                continue
 
             # Track events per IP
             method = entry.get("method", "UNKNOWN").strip().upper()
