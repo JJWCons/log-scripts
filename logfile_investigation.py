@@ -63,15 +63,9 @@ with open(logfile_path, "r", encoding="utf-8") as f:
             # Track events per IP
             method = entry.get("method", "UNKNOWN").strip().upper()
 
-            # Force "GET" requests to be standardized
-            if "GET" in method:
-                method = "GET"
-            elif "POST" in method:
-                method = "POST"
-            elif "CONNECT" in method:
-                method = "CONNECT"
-            elif "OPTIONS" in method:
-                method = "OPTIONS"
+            # Force standardization of request methods
+            standard_methods = {"GET", "POST", "CONNECT", "OPTIONS"}
+            method = method.split()[0] if method.split()[0] in standard_methods else method
 
             ip_activity[sip]["request_methods"][method] += 1
 
@@ -150,15 +144,15 @@ method_summary = Counter()
 for data in ip_activity.values():
     method_summary.update(data["request_methods"])
 
-# Normalize method names before displaying
-cleaned_methods = Counter()
+# Final cleanup—ensure only one "GET" entry appears
+final_methods = Counter()
 for method, count in method_summary.items():
     normalized_method = method.strip().upper()
-    if "GET" in normalized_method:
-        normalized_method = "GET"  # Ensure any variant is counted as a single GET
-    cleaned_methods[normalized_method] += count
+    if normalized_method.startswith("GET"):
+        normalized_method = "GET"  # Forces only one GET
+    final_methods[normalized_method] += count
 
-for method, count in cleaned_methods.items():
+for method, count in final_methods.items():
     print(f"  {method}: {count} requests")
 
 # Print top accessed URLs
