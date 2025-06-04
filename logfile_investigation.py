@@ -137,9 +137,15 @@ print(f"✔ Total credential attempts: {total_credential_attempts}")
 # Print request methods summary
 print("\n✔ **Request Methods Used:**")
 method_summary = Counter()
-for ip, data in ip_activity.items():
+for data in ip_activity.values():
     method_summary.update(data["request_methods"])
-for method, count in method_summary.most_common():
+
+# Ensure method names are consistent before displaying
+cleaned_methods = Counter()
+for method, count in method_summary.items():
+    cleaned_methods[method.strip().upper()] += count  # Normalize casing and remove duplicates
+
+for method, count in cleaned_methods.items():
     print(f"  {method}: {count} requests")
 
 # Print top accessed URLs
