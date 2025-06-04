@@ -62,6 +62,11 @@ with open(logfile_path, "r", encoding="utf-8") as f:
 
             # Track events per IP
             method = entry.get("method", "UNKNOWN").strip().upper()
+
+            # Ensure method names are clean and consistent
+            if method in ["GET ", "GET"]:  # Handles accidental spaces
+                method = "GET"
+
             ip_activity[sip]["request_methods"][method] += 1
 
             if "url" in entry:
