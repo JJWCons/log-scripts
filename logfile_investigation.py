@@ -109,6 +109,14 @@ for sip, data in top_ips:
     total_events = sum(len(v) for v in data.values())
     print(f"- {sip}: {total_events} events detected")
 
+# Find bottom 10 least active IPs   
+bottom_ips = sorted(ip_activity.items(), key=lambda x: sum(sum(counter.values()) for counter in x[1].values() if isinstance(counter, Counter)))[:10]
+                    
+print("\n🔍 **Bottom 10 Least Active IP Addresses:**")
+for sip, data in bottom_ips:
+    total_events = sum(sum(counter.values()) for counter in data.values() if isinstance(counter, Counter))
+    print(f"- {sip}: {total_events} events detected")
+    
 # Display total number of unique IPs (NEW ADDITION)
 total_unique_ips = len(ip_activity)
 print(f"\n🧮 **Total Unique IP Addresses:** {total_unique_ips}")
