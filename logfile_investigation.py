@@ -61,11 +61,13 @@ with open(logfile_path, "r", encoding="utf-8") as f:
                 continue
 
             # Track events per IP
-            ip_activity[sip]["request_methods"][entry.get("method", "UNKNOWN").upper()] += 1
+            method = entry.get("method", "UNKNOWN").strip().upper()
+            ip_activity[sip]["request_methods"][method] += 1
+
             if "url" in entry:
                 ip_activity[sip]["url_accesses"][entry["url"]] += 1
 
-                # Check for **suspicious file extensions** in the URL
+                # Check for suspicious file extensions in the URL
                 for ext in suspicious_extensions:
                     if re.search(rf"\.{ext}\b", entry["url"], re.IGNORECASE):
                         ip_activity[sip]["file_requests"][entry["url"]] += 1
