@@ -58,20 +58,20 @@ with open(logfile_path, "r", encoding="utf-8") as f:
             sip = entry.get("sip", "").strip()
 
             if not sip:
-                continue
+            continue
 
             # Track events per IP
             method = entry.get("method", "UNKNOWN").strip().upper()
 
             # Normalize method names to prevent duplicates
             if method.startswith("GET"):
-            method = "GET"
+                method = "GET"
             elif method.startswith("POST"):
-            method = "POST"
+                method = "POST"
             elif method.startswith("CONNECT"):
-            method = "CONNECT"
+                method = "CONNECT"
             elif method.startswith("OPTIONS"):
-            method = "OPTIONS"
+                method = "OPTIONS"
 
             ip_activity[sip]["request_methods"][method] += 1
 
