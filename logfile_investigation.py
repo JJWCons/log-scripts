@@ -81,7 +81,6 @@ try:
                     for ext in suspicious_extensions:
                         if re.search(rf"\.{ext}\b", entry["url"], re.IGNORECASE):
                             ip_activity[sip]["file_requests"][entry["url"]] += 1
-
                 if "time" in entry:
                     ip_activity[sip]["timestamps"].append(entry["time"])
                 if "useragent" in entry:
