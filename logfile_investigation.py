@@ -120,33 +120,38 @@ try:
                         return [str(v) for v in value.values()]
                     return []                 # Credential Attempts Tracking
                     
+                # ✅ Step #1: Check if credential-related fields exist in the entry
+                for key in entry.keys():
+                    if key.lower() in {"username", "user", "login", "auth", "password", "pass"}:
+                        print(f"✅ Found credential field: {key} -> {entry[key]}")  # Debugging print
+
+                # ✅ Continue with credential extraction
                 for key, value in entry.items():
                     if isinstance(value, (str, list, dict)):  # Allow more formats
-                        
-                        # Expand search to look for predefined usernames
-                        if key.lower() in {"username", "user", "login", "auth"}:
-                            for username in default_usernames:
-                                if re.search(rf"\b{username}\b", value, re.IGNORECASE):
-                                    credential_summary["Usernames"][username] += 1
+        
+                 # Expand search to look for predefined usernames
+                if key.lower() in {"username", "user", "login", "auth"}:
+                    for username in default_usernames:
+                        if re.search(rf"\b{username}\b", value, re.IGNORECASE):
+                            credential_summary["Usernames"][username] += 1
 
-                        # Expand search to look for predefined passwords
-                        if key.lower() in {"password", "pass", "auth"}:
-                            for password in default_passwords:
-                                if re.search(rf"\b{password}\b", value, re.IGNORECASE):
-                                    credential_summary["Passwords"][password] += 1
-                                    
-                        # Capture any username outside predefined list
-                        if key.lower() in {"username", "user", "login", "auth"}:
-                            detected_username = value.strip()
-                            if detected_username and detected_username not in default_usernames:
-                                credential_summary["Usernames"][detected_username] += 1  # Track unknown usernames
+                # Expand search to look for predefined passwords
+                if key.lower() in {"password", "pass", "auth"}:
+                    for password in default_passwords:
+                        if re.search(rf"\b{password}\b", value, re.IGNORECASE):
+                            credential_summary["Passwords"][password] += 1
+        
+                # Capture any username outside predefined list
+                if key.lower() in {"username", "user", "login", "auth"}:
+                    detected_username = value.strip()
+                    if detected_username and detected_username not in default_usernames:
+                        credential_summary["Usernames"][detected_username] += 1  # Track unknown usernames
 
-                        # Capture any password outside predefined list
-                        if key.lower() in {"password", "pass", "auth"}:
-                            detected_password = value.strip()
-                            if detected_password and detected_password not in default_passwords:
-                                credential_summary["Passwords"][detected_password] += 1  # Track unknown passwords
-                                    
+                # Capture any password outside predefined list
+                if key.lower() in {"password", "pass", "auth"}:
+                    detected_password = value.strip()
+                    if detected_password and detected_password not in default_passwords:
+                        credential_summary["Passwords"][detected_password] += 1  # Track unknown passwords
                 # Hash detection
                 entry_text = json.dumps(entry)
                 for hash_type, pattern in hash_patterns.items():
