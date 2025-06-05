@@ -2,6 +2,8 @@ import json
 import re
 from collections import defaultdict, Counter
 import time
+log_start_time = None
+log_end_time = None
 
 start_time = time.time()
 
