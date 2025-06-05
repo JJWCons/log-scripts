@@ -120,6 +120,7 @@ try:
                             for password in default_passwords:
                                 if re.search(rf"\b{password}\b", value, re.IGNORECASE):
                                     credential_summary["Passwords"][password] += 1
+                                    
                         # Capture any username outside predefined list
                         if key.lower() in {"username", "user", "login", "auth"}:
                             detected_username = value.strip()
