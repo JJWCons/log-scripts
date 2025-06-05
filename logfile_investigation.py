@@ -91,15 +91,29 @@ try:
                 if entry.get("response_id") and "status_code" in entry["response_id"]:
                     ip_activity[sip]["response_codes"][str(entry["response_id"]["status_code"])] += 1
 
-                # Credential Attempts
-                for key, value in entry.items():
-                    if isinstance(value, str):
-                        for username in default_usernames:
-                            if re.search(rf"\b{username}\b", value, re.IGNORECASE):
-                                credential_summary["Usernames"][username] += 1
-                        for password in default_passwords:
-                            if re.search(rf"\b{password}\b", value, re.IGNORECASE):
-                                credential_summary["Passwords"][password] += 1
+                # Credential Attempts Tracking
+for ip, data in ip_activity.items():
+    for key, value in data.items():
+        if isinstance(value, str):  # Ensure we're checking only string entries
+            # Count usernames
+            for username in default_usernames:
+                if re.search(rf"\b{username}\b", value, re.IGNORECASE):
+                    credential_summary["Usernames"][username] += 1
+            
+            # Count passwords
+            for password in default_passwords:
+                if re.search(rf"\b{password}\b", value, re.IGNORECASE):
+                    credential_summary["Passwords"][password] += 1
+
+# Print summary of attempted credentials
+print("\n✔ **Summary of Attempted Credentials:**")
+print("\n🔑 **Top Attempted Usernames:**")
+for username, count in credential_summary["Usernames"].most_common(10):
+    print(f"  - {username}: {count} occurrences")
+
+print("\n🔐 **Top Attempted Passwords:**")
+for password, count in credential_summary["Passwords"].most_common(10):
+    print(f"  - {password}: {count} occurrences")
 
                 # Hash detection
                 entry_text = json.dumps(entry)
