@@ -110,10 +110,6 @@ except FileNotFoundError:
     print(f"❌ Error: The file '{logfile_path}' was not found. Please check the filename and try again.")
     exit()
 
-# Display total number of unique IPs
-total_unique_ips = len(ip_activity)
-print(f"\n🧮 **Total Unique IP Addresses:** {total_unique_ips}")
-
 # Find top 10 most active IPs
 top_ips = sorted(ip_activity.items(), key=lambda x: sum(sum(counter.values()) for counter in x[1].values() if isinstance(counter, Counter)), reverse=True)[:10]
 print("\n🔍 **Top 10 Most Active IP Addresses:**")
@@ -127,6 +123,10 @@ print("\n🔍 **Bottom 10 Least Active IP Addresses:**")
 for sip, data in bottom_ips:
     total_events = sum(sum(counter.values()) for counter in data.values() if isinstance(counter, Counter))
     print(f"- {sip}: {total_events} events detected")
+
+# Display total number of unique IPs
+total_unique_ips = len(ip_activity)
+print(f"\n🧮 **Total Unique IP Addresses:** {total_unique_ips}")
 
 # Print request methods summary
 print("\n✔ **Request Methods Used:**")
@@ -154,6 +154,14 @@ for data in ip_activity.values():
 
 for file, count in file_summary.most_common(10):
     print(f"  {file}: {count} requests flagged as suspicious")
+
+# Print detected hashes
+print("\n✔ **Hashes Detected:**")
+for hash_type, hash_counts in hash_summary.items():
+    if hash_counts:  # Ensure there's data to print
+        print(f"\n🔍 {hash_type} Hashes:")
+        for hash_value, count in hash_counts.most_common():
+            print(f"  {hash_value}: {count} occurrences")
 
 # Print processing time
 end_time = time.time()
