@@ -140,16 +140,20 @@ else:
         
 # Print request methods summary
 print("\n✔ **Request Methods Used:**")
-
 method_summary = Counter()
+
 for data in ip_activity.values():
     method_summary.update(data["request_methods"])
 
+# If no request methods are detected, print a message
 if not method_summary:
-    print("❌ No request methods detected.")
+    print("❌ No request methods detected in the logs.")
 else:
+    seen_methods = set()
     for method, count in sorted(method_summary.items(), key=lambda x: x[1], reverse=True):
-        print(f"  {method}: {count} requests")
+        if method not in seen_methods:
+            print(f"  {method}: {count} requests")
+            seen_methods.add(method)
 
 # Print top accessed URLs
 print("\n✔ **Top Accessed URLs:**")
