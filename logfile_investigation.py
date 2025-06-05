@@ -166,16 +166,20 @@ for sip, data in top_ips:
 # Find bottom 10 least active IPs
 bottom_ips = sorted(ip_activity.items(), key=lambda x: sum(sum(counter.values()) for counter in x[1].values() if isinstance(counter, Counter)))[:10]
 
-print("\n🔍 **Bottom 10 Least Active IP Addresses:**\n")  # Add extra newline
+print("\n🔍 **Bottom 10 Least Active IP Addresses:**")  # No extra newline
 
 if not bottom_ips:
-    print("❌ No data available for least active IPs.\n")  # Add newline
+    print("❌ No data available for least active IPs.")
 else:
     for sip, data in bottom_ips:
         total_events = sum(sum(counter.values()) for counter in data.values() if isinstance(counter, Counter))
-        print(f"- {sip}: {total_events} events detected\n")  # Add newline at the end
-        
+        print(f"- {sip}: {total_events} events detected")  # No extra newline here
+
+# Add a **single clean space** before request methods
+print("\n---------------------------------\n")  # Creates a clear separation
+print("✔ **Request Methods Used:**")  # No extra newline
 # Print request methods summary
+
 seen_methods = set()
 method_summary = Counter()
 
@@ -192,14 +196,11 @@ if not method_summary:
 
 # If no request methods are detected, print a message
 if not method_summary:
-    print("❌ No request methods detected in the logs.\n")  # Add newline
+    print("❌ No request methods detected in the logs.")
 else:
-    seen_methods = set()
     for method, count in sorted(method_summary.items(), key=lambda x: x[1], reverse=True):
-        if method not in seen_methods:
-            print(f"  {method}: {count} requests\n")  # Add newline
-            seen_methods.add(method)
-
+        print(f"  {method}: {count} requests")  # No extra newline after each request
+        
 # Print top accessed URLs
 print("\n✔ **Top Accessed URLs:**")
 url_summary = Counter()
