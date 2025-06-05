@@ -65,6 +65,18 @@ try:
                 sip = entry.get("sip", "").strip()
                 if not sip:
                     continue
+
+                # Debugging print: Check if "url" key exists in the log entry
+                print(f"Processing entry: {entry}")  # See full log entry structure
+
+                if "url" in entry:
+                    print(f"✅ Found URL: {entry['url']}")  # Debugging statement
+
+                    # Ensure URL tracking works
+                    if entry["url"].strip():
+                        ip_activity[sip]["url_accesses"][entry["url"].strip()] += 1
+                else:
+                    print("❌ No URL field in this entry.")  # Debugging statement
                     
                 # Track request methods
                 method = entry.get("method", "UNKNOWN").strip().upper()
