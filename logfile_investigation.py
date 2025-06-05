@@ -96,8 +96,16 @@ try:
 
                 if entry.get("response_id") and "status_code" in entry["response_id"]:
                     ip_activity[sip]["response_codes"][str(entry["response_id"]["status_code"])] += 1
-
-                # Credential Attempts Tracking
+                    
+                def extract_text(value):
+                    if isinstance(value, str):
+                        return [value]
+                    elif isinstance(value, list):
+                        return [str(v) for v in value]
+                    elif isinstance(value, dict):
+                        return [str(v) for v in value.values()]
+                    return []                 # Credential Attempts Tracking
+                    
                 for key, value in entry.items():
                     if isinstance(value, (str, list, dict)):  # Allow more formats
                         
@@ -123,7 +131,7 @@ try:
                             detected_password = value.strip()
                             if detected_password and detected_password not in default_passwords:
                                 credential_summary["Passwords"][detected_password] += 1  # Track unknown passwords
-                                    print(f"Checking entry for credentials: {entry}")
+                                    
                 # Hash detection
                 entry_text = json.dumps(entry)
                 for hash_type, pattern in hash_patterns.items():
