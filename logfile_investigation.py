@@ -85,7 +85,7 @@ try:
 
                 if entry.get("response_id") and "status_code" in entry["response_id"]:
                     ip_activity[sip]["response_codes"][str(entry["response_id"]["status_code"])] += 1
-                    
+
                 # Credential Attempts Tracking
                 for key, value in entry.items():
                     if isinstance(value, str):  # Ensure it's a string before scanning
@@ -101,20 +101,6 @@ try:
                             for password in default_passwords:
                                 if re.search(rf"\b{password}\b", value, re.IGNORECASE):
                                     credential_summary["Passwords"][password] += 1
-                    
-# Print summary of attempted credentials
-print("\n✔ **Summary of Attempted Credentials:**")
-
-if not credential_summary["Usernames"] and not credential_summary["Passwords"]:
-    print("❌ No attempted usernames or passwords detected in the logs.")
-else:
-    print("\n🔑 **Top Attempted Usernames:**")
-    for username, count in credential_summary["Usernames"].most_common(10):
-        print(f"  - {username}: {count} occurrences")
-
-    print("\n🔐 **Top Attempted Passwords:**")
-    for password, count in credential_summary["Passwords"].most_common(10):
-        print(f"  - {password}: {count} occurrences")
 
                 # Hash detection
                 entry_text = json.dumps(entry)
@@ -130,23 +116,16 @@ except FileNotFoundError:
     print(f"❌ Error: The file '{logfile_path}' was not found. Please check the filename and try again.")
     exit()
 
+# Display total number of unique IPs
+total_unique_ips = len(ip_activity)
+print(f"\n🧮 **Total Unique IP Addresses:** {total_unique_ips}")
+
 # Find top 10 most active IPs
 top_ips = sorted(ip_activity.items(), key=lambda x: sum(sum(counter.values()) for counter in x[1].values() if isinstance(counter, Counter)), reverse=True)[:10]
 print("\n🔍 **Top 10 Most Active IP Addresses:**")
 for sip, data in top_ips:
     total_events = sum(sum(counter.values()) for counter in data.values() if isinstance(counter, Counter))
     print(f"- {sip}: {total_events} events detected")
-
-# Find bottom 10 least active IPs
-bottom_ips = sorted(ip_activity.items(), key=lambda x: sum(sum(counter.values()) for counter in x[1].values() if isinstance(counter, Counter)))[:10]
-print("\n🔍 **Bottom 10 Least Active IP Addresses:**")
-for sip, data in bottom_ips:
-    total_events = sum(sum(counter.values()) for counter in data.values() if isinstance(counter, Counter))
-    print(f"- {sip}: {total_events} events detected")
-
-# Display total number of unique IPs
-total_unique_ips = len(ip_activity)
-print(f"\n🧮 **Total Unique IP Addresses:** {total_unique_ips}")
 
 # Print request methods summary
 print("\n✔ **Request Methods Used:**")
@@ -157,34 +136,29 @@ for data in ip_activity.values():
 for method, count in method_summary.most_common():
     print(f"  {method}: {count} requests")
 
-# Print top accessed URLs
-print("\n✔ **Top Accessed URLs:**")
-url_summary = Counter()
-for data in ip_activity.values():
-    url_summary.update(data["url_accesses"])
-
-for url, count in url_summary.most_common(10):
-    print(f"  {url}: {count} accesses")
-
-# Print suspicious file requests
-print("\n⚠ **Suspicious File Requests:**")
-file_summary = Counter()
-for data in ip_activity.values():
-    file_summary.update(data["file_requests"])
-
-for file, count in file_summary.most_common(10):
-    print(f"  {file}: {count} requests flagged as suspicious")
-
 # Print detected hashes or indicate none found
 print("\n✔ **Hashes Detected:**")
 if not hash_summary:
     print("❌ No hashes detected in the log entries.")
 else:
     for hash_type, hash_counts in hash_summary.items():
-        if hash_counts:  # Ensure there's data to print
+        if hash_counts:
             print(f"\n🔍 {hash_type} Hashes:")
             for hash_value, count in hash_counts.most_common():
                 print(f"  {hash_value}: {count} occurrences")
+
+# Print summary of attempted credentials
+print("\n✔ **Summary of Attempted Credentials:**")
+if not credential_summary["Usernames"] and not credential_summary["Passwords"]:
+    print("❌ No attempted usernames or passwords detected in the logs.")
+else:
+    print("\n🔑 **Top Attempted Usernames:**")
+    for username, count in credential_summary["Usernames"].most_common(10):
+        print(f"  - {username}: {count} occurrences")
+
+    print("\n🔐 **Top Attempted Passwords:**")
+    for password, count in credential_summary["Passwords"].most_common(10):
+        print(f"  - {password}: {count} occurrences")
 
 # Print processing time
 end_time = time.time()
