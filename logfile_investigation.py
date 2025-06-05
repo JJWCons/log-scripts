@@ -252,6 +252,11 @@ else:
             for hash_value, count in hash_counts.most_common():
                 print(f"  {hash_value}: {count} occurrences")
 
+# Debugging: Check if credentials exist before printing
+print("\n🔍 Credential Debug Info:")
+print("Usernames:", credential_summary["Usernames"])
+print("Passwords:", credential_summary["Passwords"])
+
 # Print summary of attempted credentials
 print("\n🔐 **Credential Summary:**")
 
