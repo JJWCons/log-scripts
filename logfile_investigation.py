@@ -127,6 +127,17 @@ for sip, data in top_ips:
     total_events = sum(sum(counter.values()) for counter in data.values() if isinstance(counter, Counter))
     print(f"- {sip}: {total_events} events detected")
 
+# Find bottom 10 least active IPs
+bottom_ips = sorted(ip_activity.items(), key=lambda x: sum(sum(counter.values()) for counter in x[1].values() if isinstance(counter, Counter)))[:10]
+
+print("\n🔍 **Bottom 10 Least Active IP Addresses:**")
+if not bottom_ips:
+    print("❌ No data available for least active IPs.")
+else:
+    for sip, data in bottom_ips:
+        total_events = sum(sum(counter.values()) for counter in data.values() if isinstance(counter, Counter))
+        print(f"- {sip}: {total_events} events detected")
+
 # Print request methods summary
 print("\n✔ **Request Methods Used:**")
 method_summary = Counter()
