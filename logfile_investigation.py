@@ -135,15 +135,14 @@ for sip, data in bottom_ips:
     total_events = sum(sum(counter.values()) for counter in data.values() if isinstance(counter, Counter))
     print(f"- {sip}: {total_events} events detected")
 
-# Print credentials summary
-print("\n✔ **Summary of Attempted Credentials:**")
-print("\n🔑 **Top Attempted Usernames:**")
-for username, count in credential_summary["Usernames"].most_common(10):
-    print(f"  - {username}: {count} occurrences")
+# Print suspicious file requests
+file_summary = Counter()
+for data in ip_activity.values():
+    file_summary.update(data["file_requests"])
 
-print("\n🔐 **Top Attempted Passwords:**")
-for password, count in credential_summary["Passwords"].most_common(10):
-    print(f"  - {password}: {count} occurrences")
+print("\n⚠ **Suspicious File Requests:**")
+for file, count in file_summary.most_common(10):
+    print(f"  {file}: {count} requests flagged as suspicious")
 
 # Print detected hashes
 print("\n✔ **Hashes Detected:**")
