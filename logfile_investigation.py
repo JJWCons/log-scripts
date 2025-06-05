@@ -144,9 +144,12 @@ for url, count in url_summary.most_common(10):
 
 # Print flagged **Suspicious File Requests**
 print("\n⚠ **Suspicious File Requests:**")
-for file, count in Counter({file: sum(ip["file_requests"][file] for ip in ip_activity.values()) for ip in ip_activity}).most_common(10):
-    print(f"  {file}: {count} requests flagged as suspicious")
+file_summary = Counter()
+for data in ip_activity.values():
+    file_summary.update(data["file_requests"])
 
+for file, count in file_summary.most_common(10):
+    print(f"  {file}: {count} requests flagged as suspicious")
 # Print detected hashes
 print("\n✔ **Hashes Detected:**")
 for hash_type, hash_counts in hash_summary.items():
