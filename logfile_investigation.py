@@ -71,7 +71,8 @@ try:
 
                 # Ensure request method counting is correct
                 ip_activity[sip]["request_methods"][method] += 1
-
+                print(f"Tracking method: {method} for IP {sip}")
+                
                 # Track URLs & suspicious file requests
                 if "url" in entry:
                     ip_activity[sip]["url_accesses"][entry["url"]] += 1
