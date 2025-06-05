@@ -1,6 +1,7 @@
 import json
 import re
 from collections import defaultdict, Counter
+import time  # Import the time module
 
 # Define **suspicious file extensions** to flag as potentially malicious
 suspicious_extensions = ["php", "exe", "zip", "rar", "tar", "gz", "bat", "sh", "py"]
@@ -182,3 +183,11 @@ for target_ip in map(str.strip, target_ips):
         print(f"\n❌ No data found for IP: {target_ip}")
 
 print("\n✅ **Multi-IP Analysis Complete!**")
+end_time = time.time()
+elapsed_time = end_time - start_time
+
+# Convert to minutes and seconds
+minutes = int(elapsed_time // 60)
+seconds = int(elapsed_time % 60)
+
+print(f"\n⏳ **Log analysis completed in {minutes} minutes and {seconds} seconds**")
