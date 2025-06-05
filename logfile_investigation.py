@@ -118,18 +118,15 @@ try:
 except FileNotFoundError:
     print(f"❌ Error: The file '{logfile_path}' was not found. Please check the filename and try again.")
     exit()
-    
+
 # After processing the logfile, print log activity timeframe FIRST
 if log_start_time and log_end_time:
     print("\n⏳ **Log Activity Timeframe:**")
     print(f"📅 **Activity started at:** {log_start_time}")
     print(f"📅 **Last recorded activity:** {log_end_time}")
 else:
-    print("❌ No timestamps found in the log entries.")
-
-# Print total unique IPs next
+    print("❌ No timestamps found in the log entries.")# Print total unique IPs next
 print(f"\n🧮 **Total Unique IP Addresses:** {len(ip_activity)}")
-
 # Print request methods, suspicious files, and other summaries below
 
 # Display total number of unique IPs
