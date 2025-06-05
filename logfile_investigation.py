@@ -228,21 +228,19 @@ else:
         print(f"  {url}: {count} accesses")
 
 # Print suspicious file requests
-seen_files = set()
-file_summary = Counter()
+print("\n⚠ **Suspicious File Requests:**\n")
 
-for ip, data in ip_activity.items():
-    for file, count in data["file_requests"].items():
-        if file not in seen_files:
-            file_summary[file] += count
-            seen_files.add(file)
+file_summary = Counter()
+for data in ip_activity.values():
+    if "file_requests" in data:
+        file_summary.update(data["file_requests"])
 
 if not file_summary:
-    print("❌ No suspicious file requests detected in the logs.")
+    print("❌ No suspicious file requests detected.\n")
 else:
-    for file, count in file_summary.most_common(10):
-        print(f"  {file}: {count} requests flagged as suspicious")
-
+    for file, count in file_summary.most_common(10):  # Show top 10 suspicious files
+        print(f"  {file}: {count} requests flagged as suspicious\n")
+        
 # Print detected hashes or indicate none found
 print("\n✔ **Hashes Detected:**")
 if not hash_summary:
