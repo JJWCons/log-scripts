@@ -146,6 +146,9 @@ if not suspicious_files_summary:
 else:
     for file, count in suspicious_files_summary.most_common(10):
         print(f"  {file}: {count} requests flagged as suspicious")
+# Display Timestamps 
+print("\n🕒 **Log Start Time:**", log_start_time if log_start_time else "❌ No start time detected")
+print("🕒 **Log End Time:**", log_end_time if log_end_time else "❌ No end time detected")
         
 # Display total number of unique IPs
 total_unique_ips = len(ip_activity)
