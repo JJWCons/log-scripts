@@ -51,17 +51,25 @@ credential_summary = {"Usernames": Counter(), "Passwords": Counter()}
 user_agent_summary = Counter()
 
 # Open and parse JSON log file
-logfile_path = "webhoneypot-2025-05-31.json"
+#logfile_path = "webhoneypot-2025-05-31.json"
+logfile_path = input("📂 Enter the log file name (e.g., webhoneypot-2025-05-31.json): ").strip()
 
-with open(logfile_path, "r", encoding="utf-8") as f:
-    for line in f:
-        try:
-            entry = json.loads(line.strip())
+# Check if the file exists before opening it
+try:
+    with open(logfile_path, "r", encoding="utf-8") as f:
+        for line in f:   
+            try:
+                entry = json.loads(line.strip())
+        
+                sip = entry.get("sip", "").strip()
 
-            sip = entry.get("sip", "").strip()
-
-            if not sip:
-                continue
+                if not sip:
+                    continue
+            except json.JSONDecodeError:
+                print("❌ Error: Failed to parse a log entry.")
+except FileNotFoundError:
+    print(f"❌ Error: The file '{logfile_path}' was not found. Please check the filename and try again.")
+    exit()
 
             # Track events per IP
             method = entry.get("method", "UNKNOWN").strip().upper()
