@@ -65,11 +65,15 @@ try:
 
                 if not sip:
                     continue
-
-                # Track request method safely (this section should follow)
+                    
+                                # Track request method safely
                 method = entry.get("method", "UNKNOWN").strip().upper()
-                ip_activity[sip]["request_methods"][method] += 1
 
+                # Force standardization of request methods
+                standard_methods = {"GET", "POST", "CONNECT", "OPTIONS"}
+                method = method.split()[0] if method.split()[0] in standard_methods else method
+
+                ip_activity[sip]["request_methods"][method] += 1
             except json.JSONDecodeError:
                 print(f"❌ Error: Failed to parse a log entry: {line.strip()[:100]}...")
                 
