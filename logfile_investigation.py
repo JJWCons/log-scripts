@@ -155,12 +155,16 @@ else:
         print(f"- {sip}: {total_events} events detected")
         
 # Print request methods summary
-print("\n✔ **Request Methods Used:**")
+seen_methods = set()
 method_summary = Counter()
 
-for data in ip_activity.values():
-    method_summary.update(data["request_methods"])
-
+for ip, data in ip_activity.items():
+    for method, count in data["request_methods"].items():
+        request_key = f"{ip}-{method}"
+        if request_key not in seen_methods:
+            method_summary[method] += count
+            seen_methods.add(request_key)
+            
 # If no request methods are detected, print a message
 if not method_summary:
     print("❌ No request methods detected in the logs.")
@@ -184,10 +188,14 @@ else:
         print(f"  {url}: {count} accesses")
 
 # Print suspicious file requests
-print("\n⚠ **Suspicious File Requests:**")
+seen_files = set()
 file_summary = Counter()
-for data in ip_activity.values():
-    file_summary.update(data["file_requests"])
+
+for ip, data in ip_activity.items():
+    for file, count in data["file_requests"].items():
+        if file not in seen_files:
+            file_summary[file] += count
+            seen_files.add(file)
 
 if not file_summary:
     print("❌ No suspicious file requests detected in the logs.")
