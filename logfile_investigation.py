@@ -120,7 +120,27 @@ except FileNotFoundError:
     exit()
 
 # Print request methods, suspicious files, and other summaries below
+# Extract request methods and suspicious files from log data
+request_methods_summary = Counter()
+suspicious_files_summary = Counter()
 
+for ip, data in ip_activity.items():
+    request_methods_summary.update(data["request_methods"])
+    suspicious_files_summary.update(data["file_requests"])
+
+# Print extracted request method counts
+print("\n✔ **Request Methods Used:**")
+for method, count in sorted(request_methods_summary.items(), key=lambda x: x[1], reverse=True):
+    print(f"  {method}: {count} requests")
+
+# Print suspicious file activity
+print("\n⚠ **Suspicious Files Detected:**")
+if not suspicious_files_summary:
+    print("❌ No suspicious file requests detected in the logs.")
+else:
+    for file, count in suspicious_files_summary.most_common(10):
+        print(f"  {file}: {count} requests flagged as suspicious")
+        
 # Display total number of unique IPs
 total_unique_ips = len(ip_activity)
 print(f"\n🧮 **Total Unique IP Addresses:** {total_unique_ips}")
