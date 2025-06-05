@@ -128,26 +128,6 @@ except FileNotFoundError:
     exit()
 
 # Print request methods, suspicious files, and other summaries below
-# Extract request methods and suspicious files from log data
-request_methods_summary = Counter()
-suspicious_files_summary = Counter()
-
-for ip, data in ip_activity.items():
-    request_methods_summary.update(data["request_methods"])
-    suspicious_files_summary.update(data["file_requests"])
-
-# Print extracted request method counts
-print("\n✔ **Request Methods Used:**")
-for method, count in sorted(request_methods_summary.items(), key=lambda x: x[1], reverse=True):
-    print(f"  {method}: {count} requests")
-
-# Print suspicious file activity
-print("\n⚠ **Suspicious Files Detected:**")
-if not suspicious_files_summary:
-    print("❌ No suspicious file requests detected in the logs.")
-else:
-    for file, count in suspicious_files_summary.most_common(10):
-        print(f"  {file}: {count} requests flagged as suspicious")
 # Display Timestamps 
 print("\n🕒 **Log Start Time:**", log_start_time if log_start_time else "❌ No start time detected")
 print("🕒 **Log End Time:**", log_end_time if log_end_time else "❌ No end time detected")
