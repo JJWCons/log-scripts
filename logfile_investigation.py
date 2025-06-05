@@ -137,15 +137,19 @@ else:
     for sip, data in bottom_ips:
         total_events = sum(sum(counter.values()) for counter in data.values() if isinstance(counter, Counter))
         print(f"- {sip}: {total_events} events detected")
-
+        
 # Print request methods summary
 print("\n✔ **Request Methods Used:**")
+
 method_summary = Counter()
 for data in ip_activity.values():
     method_summary.update(data["request_methods"])
 
-for method, count in method_summary.most_common():
-    print(f"  {method}: {count} requests")
+if not method_summary:
+    print("❌ No request methods detected.")
+else:
+    for method, count in sorted(method_summary.items(), key=lambda x: x[1], reverse=True):
+        print(f"  {method}: {count} requests")
 
 # Print top accessed URLs
 print("\n✔ **Top Accessed URLs:**")
