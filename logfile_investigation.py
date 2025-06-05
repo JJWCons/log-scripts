@@ -112,6 +112,7 @@ with open(logfile_path, "r", encoding="utf-8") as f:
 top_ips = sorted(ip_activity.items(), key=lambda x: sum(len(v) for v in x[1].values()), reverse=True)[:10]
 
 print("\n🔍 **Top 10 Most Active IP Addresses:**")
+
 for sip, data in top_ips:
     total_events = sum(len(v) for v in data.values())
     print(f"- {sip}: {total_events} events detected")
@@ -120,6 +121,7 @@ for sip, data in top_ips:
 bottom_ips = sorted(ip_activity.items(), key=lambda x: sum(sum(counter.values()) for counter in x[1].values() if isinstance(counter, Counter)))[:10]
                     
 print("\n🔍 **Bottom 10 Least Active IP Addresses:**")
+
 for sip, data in bottom_ips:
     total_events = sum(sum(counter.values()) for counter in data.values() if isinstance(counter, Counter))
     print(f"- {sip}: {total_events} events detected")
@@ -130,6 +132,7 @@ print(f"\n🧮 **Total Unique IP Addresses:** {total_unique_ips}")
 
 # Print general security event summary
 print("\n🔍 **General Security Event Summary Across All IPs:**")
+
 total_hashes = sum(sum(hash_counts.values()) for hash_counts in hash_summary.values())
 total_credential_attempts = sum(credential_summary["Usernames"].values()) + sum(credential_summary["Passwords"].values())
 total_requests = sum(sum(data["request_methods"].values()) for ip, data in ip_activity.items())
@@ -140,6 +143,7 @@ print(f"✔ Total credential attempts: {total_credential_attempts}")
 
 # Print request methods summary
 print("\n✔ **Request Methods Used:**")
+
 method_summary = Counter()
 for data in ip_activity.values():
     method_summary.update(data["request_methods"])
@@ -157,6 +161,7 @@ for method, count in final_methods.items():
 
 # Print top accessed URLs
 print("\n✔ **Top Accessed URLs:**")
+
 url_summary = Counter()
 for ip, data in ip_activity.items():
     url_summary.update(data["url_accesses"])
@@ -165,6 +170,7 @@ for url, count in url_summary.most_common(10):
 
 # Print flagged **Suspicious File Requests**
 print("\n⚠ **Suspicious File Requests:**")
+
 file_summary = Counter()
 for ip, data in ip_activity.items():
     file_summary.update(data["file_requests"])
@@ -173,6 +179,7 @@ for file, count in file_summary.most_common(10):
 
 # Print top user-agent strings
 print("\n🖥 **Top User-Agent Strings:**")
+
 for ua, count in user_agent_summary.most_common(5):
     print(f"  - {ua}: {count} requests")
 
@@ -184,6 +191,7 @@ for username, count in credential_summary["Usernames"].most_common(10):
     print(f"  - {username}: {count} occurrences")
 
 print("\n🔐 **Top Attempted Passwords:**")
+
 for password, count in credential_summary["Passwords"].most_common(10):
     print(f"  - {password}: {count} occurrences")
 
