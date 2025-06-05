@@ -1,6 +1,9 @@
 import json
 import re
 from collections import defaultdict, Counter
+import time  # Import the time module
+
+start_time = time.time()  # Start tracking time
 
 # Define **suspicious file extensions** to flag as potentially malicious
 suspicious_extensions = ["php", "exe", "zip", "rar", "tar", "gz", "bat", "sh", "py"]
@@ -204,3 +207,8 @@ if hash_summary:
             print(f"  - {hash_value}: {count} occurrences")
 
 print("\n✅ **Log analysis complete!**")
+
+end_time = time.time()  # Stop tracking time
+elapsed_time = end_time - start_time  # Calculate elapsed time
+
+print(f"\n⏳ **Log analysis completed in {elapsed_time:.2f} seconds**")
