@@ -190,6 +190,7 @@ for ua, count in user_agent_summary.most_common(5):
 print("\n✔ **Summary of Attempted Credentials:**")
 
 print("\n🔑 **Top Attempted Usernames:**")
+
 for username, count in credential_summary["Usernames"].most_common(10):
     print(f"  - {username}: {count} occurrences")
 
@@ -201,6 +202,7 @@ for password, count in credential_summary["Passwords"].most_common(10):
 # Print detected hashes with occurrence counts (Now labeled as "Hashes Detected")
 if hash_summary:
     print("\n✔ **Hashes Detected:**")
+    
     for hash_type, hash_counts in hash_summary.items():
         print(f"\n🔍 {hash_type} Hashes:")
         for hash_value, count in hash_counts.most_common():
@@ -208,7 +210,11 @@ if hash_summary:
 
 print("\n✅ **Log analysis complete!**")
 
-end_time = time.time()  # Stop tracking time
-elapsed_time = end_time - start_time  # Calculate elapsed time
+end_time = time.time()
+elapsed_time = end_time - start_time
 
-print(f"\n⏳ **Log analysis completed in {elapsed_time:.2f} seconds**")
+# Convert to minutes and seconds
+minutes = int(elapsed_time // 60)
+seconds = int(elapsed_time % 60)
+
+print(f"\n⏳ **Log analysis completed in {minutes} minutes and {seconds} seconds**")
