@@ -136,6 +136,30 @@ for data in ip_activity.values():
 for method, count in method_summary.most_common():
     print(f"  {method}: {count} requests")
 
+# Print top accessed URLs
+print("\n✔ **Top Accessed URLs:**")
+url_summary = Counter()
+for data in ip_activity.values():
+    url_summary.update(data["url_accesses"])
+
+if not url_summary:
+    print("❌ No URLs detected in the logs.")
+else:
+    for url, count in url_summary.most_common(10):
+        print(f"  {url}: {count} accesses")
+
+# Print suspicious file requests
+print("\n⚠ **Suspicious File Requests:**")
+file_summary = Counter()
+for data in ip_activity.values():
+    file_summary.update(data["file_requests"])
+
+if not file_summary:
+    print("❌ No suspicious file requests detected in the logs.")
+else:
+    for file, count in file_summary.most_common(10):
+        print(f"  {file}: {count} requests flagged as suspicious")
+
 # Print detected hashes or indicate none found
 print("\n✔ **Hashes Detected:**")
 if not hash_summary:
