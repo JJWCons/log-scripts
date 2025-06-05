@@ -253,17 +253,18 @@ else:
                 print(f"  {hash_value}: {count} occurrences")
 
 # Print summary of attempted credentials
-print("\n✔ **Summary of Attempted Credentials:**")
-if not credential_summary["Usernames"] and not credential_summary["Passwords"]:
-    print("❌ No attempted usernames or passwords detected in the logs.")
-else:
-    print("\n🔑 **Top Attempted Usernames:**")
-    for username, count in credential_summary["Usernames"].most_common(10):
-        print(f"  - {username}: {count} occurrences")
+print("\n🔐 **Credential Summary:**")
 
-    print("\n🔐 **Top Attempted Passwords:**")
-    for password, count in credential_summary["Passwords"].most_common(10):
-        print(f"  - {password}: {count} occurrences")
+if not credential_summary["Usernames"] and not credential_summary["Passwords"]:
+    print("❌ No credentials detected.")
+else:
+    print("\nUsernames:")
+    for user, count in credential_summary["Usernames"].items():  # Use `.items()`, not `.most_common()`
+        print(f"  {user}: {count} occurrences")
+
+    print("\nPasswords:")
+    for password, count in credential_summary["Passwords"].items():
+        print(f"  {password}: {count} occurrences")
 
 # Print processing time
 end_time = time.time()
