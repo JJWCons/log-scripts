@@ -128,15 +128,32 @@ for sip, data in bottom_ips:
     total_events = sum(sum(counter.values()) for counter in data.values() if isinstance(counter, Counter))
     print(f"- {sip}: {total_events} events detected")
 
-# General security event summary
-print("\n🔍 **General Security Event Summary Across All IPs:**")
-total_requests = sum(sum(data["request_methods"].values()) for data in ip_activity.values())
-total_hashes = sum(sum(hash_counts.values()) for hash_counts in hash_summary.values())
-total_credential_attempts = sum(credential_summary["Usernames"].values()) + sum(credential_summary["Passwords"].values())
+# Print request methods summary
+print("\n✔ **Request Methods Used:**")
+method_summary = Counter()
+for data in ip_activity.values():
+    method_summary.update(data["request_methods"])
 
-print(f"✔ Total requests: {total_requests}")
-print(f"✔ Total detected hashes: {total_hashes}")
-print(f"✔ Total credential attempts: {total_credential_attempts}")
+for method, count in method_summary.most_common():
+    print(f"  {method}: {count} requests")
+
+# Print top accessed URLs
+print("\n✔ **Top Accessed URLs:**")
+url_summary = Counter()
+for data in ip_activity.values():
+    url_summary.update(data["url_accesses"])
+
+for url, count in url_summary.most_common(10):
+    print(f"  {url}: {count} accesses")
+
+# Print suspicious file requests
+print("\n⚠ **Suspicious File Requests:**")
+file_summary = Counter()
+for data in ip_activity.values():
+    file_summary.update(data["file_requests"])
+
+for file, count in file_summary.most_common(10):
+    print(f"  {file}: {count} requests flagged as suspicious")
 
 # Print processing time
 end_time = time.time()
