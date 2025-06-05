@@ -57,16 +57,22 @@ logfile_path = input("📂 Enter the log file name (e.g., webhoneypot-2025-05-31
 # Check if the file exists before opening it
 try:
     with open(logfile_path, "r", encoding="utf-8") as f:
-        for line in f:   
+        for line in f:
             try:
                 entry = json.loads(line.strip())
-        
+
                 sip = entry.get("sip", "").strip()
 
                 if not sip:
                     continue
+
+                # Track request method safely (this section should follow)
+                method = entry.get("method", "UNKNOWN").strip().upper()
+                ip_activity[sip]["request_methods"][method] += 1
+
             except json.JSONDecodeError:
-                print("❌ Error: Failed to parse a log entry.")
+                print(f"❌ Error: Failed to parse a log entry: {line.strip()[:100]}...")
+
 except FileNotFoundError:
     print(f"❌ Error: The file '{logfile_path}' was not found. Please check the filename and try again.")
     exit()
