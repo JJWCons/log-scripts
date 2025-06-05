@@ -70,7 +70,7 @@ try:
                 #print(f"Processing entry: {entry}")  # See full log entry structure
 
                 if "url" in entry:
-                    #print(f"✅ Found URL: {entry['url']}")  # Debugging statement
+                    #print(f"Found URL: {entry['url']}")  # Debugging statement
 
                     # Ensure URL tracking works
                     if entry["url"].strip():
@@ -228,7 +228,7 @@ else:
         print(f"  {url}: {count} accesses")
 
 # Print suspicious file requests
-print("\n⚠ **Suspicious File Requests:**\n")
+print("\n⚠ **Suspicious File Requests:**")
 
 file_summary = Counter()
 for data in ip_activity.values():
@@ -236,10 +236,9 @@ for data in ip_activity.values():
         file_summary.update(data["file_requests"])
 
 if not file_summary:
-    print("❌ No suspicious file requests detected.\n")
+    print("❌ No suspicious file requests detected.")
 else:
-    for file, count in file_summary.most_common(10):  # Show top 10 suspicious files
-        print(f"  {file}: {count} requests flagged as suspicious\n")
+    print("  " + " | ".join([f"{file}: {count} flagged as suspicious" for file, count in file_summary.most_common(10)]))  # Compact format
         
 # Print detected hashes or indicate none found
 print("\n✔ **Hashes Detected:**")
