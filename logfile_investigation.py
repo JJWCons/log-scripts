@@ -228,7 +228,7 @@ else:
         print(f"  {url}: {count} accesses")
 
 # Print suspicious file requests
-print("\n⚠ **Suspicious File Requests:**")
+print("\n **Suspicious File Requests:**")
 
 file_summary = Counter()
 for data in ip_activity.values():
@@ -238,7 +238,8 @@ for data in ip_activity.values():
 if not file_summary:
     print("❌ No suspicious file requests detected.")
 else:
-    print("  " + " | ".join([f"{file}: {count} flagged as suspicious" for file, count in file_summary.most_common(10)]))  # Compact format
+    for file, count in file_summary.most_common(10):  # Show top 10 suspicious files
+        print(f"  {file}: {count} flagged as suspicious")  # No extra "\n" here
         
 # Print detected hashes or indicate none found
 print("\n✔ **Hashes Detected:**")
