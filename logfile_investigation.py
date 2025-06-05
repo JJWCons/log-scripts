@@ -63,11 +63,13 @@ try:
                 sip = entry.get("sip", "").strip()
                 if not sip:
                     continue
-
+                    
                 # Track request methods
                 method = entry.get("method", "UNKNOWN").strip().upper()
-                standard_methods = {"GET", "POST", "CONNECT", "OPTIONS"}
-                method = method.split()[0] if method.split()[0] in standard_methods else method
+                standard_methods = {"GET", "POST", "CONNECT", "OPTIONS", "HEAD"}
+                method = method.split()[0] if method in standard_methods else "OTHER"
+
+                # Ensure request method counting is correct
                 ip_activity[sip]["request_methods"][method] += 1
 
                 # Track URLs & suspicious file requests
