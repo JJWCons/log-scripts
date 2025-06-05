@@ -135,7 +135,11 @@ for sip, data in bottom_ips:
 
 # Print top accessed URLs
 print("\n✔ **Top Accessed URLs:**")
-for url, count in Counter({url: sum(ip["url_accesses"][url] for ip in ip_activity.values()) for ip in ip_activity}).most_common(10):
+url_summary = Counter()
+for data in ip_activity.values():
+    url_summary.update(data["url_accesses"])
+
+for url, count in url_summary.most_common(10):
     print(f"  {url}: {count} accesses")
 
 # Print flagged **Suspicious File Requests**
