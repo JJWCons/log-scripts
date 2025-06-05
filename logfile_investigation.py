@@ -1,9 +1,9 @@
 import json
 import re
 from collections import defaultdict, Counter
-import time  # Import the time module
+import time
 
-start_time = time.time()  # Start tracking time
+start_time = time.time()
 
 # Define suspicious file extensions to flag as potentially malicious
 suspicious_extensions = ["php", "exe", "zip", "rar", "tar", "gz", "bat", "sh", "py"]
@@ -64,19 +64,15 @@ try:
                 if not sip:
                     continue
 
-                # Track request method safely
+                # Track request methods
                 method = entry.get("method", "UNKNOWN").strip().upper()
-
-                # Force standardization of request methods
                 standard_methods = {"GET", "POST", "CONNECT", "OPTIONS"}
                 method = method.split()[0] if method.split()[0] in standard_methods else method
-
                 ip_activity[sip]["request_methods"][method] += 1
 
+                # Track URLs & suspicious file requests
                 if "url" in entry:
                     ip_activity[sip]["url_accesses"][entry["url"]] += 1
-
-                    # Check for suspicious file extensions in the URL
                     for ext in suspicious_extensions:
                         if re.search(rf"\.{ext}\b", entry["url"], re.IGNORECASE):
                             ip_activity[sip]["file_requests"][entry["url"]] += 1
@@ -90,15 +86,12 @@ try:
                 if entry.get("response_id") and "status_code" in entry["response_id"]:
                     ip_activity[sip]["response_codes"][str(entry["response_id"]["status_code"])] += 1
 
-                # 🔥 Credential Attempts—Properly placed inside the loop
+                # Credential Attempts
                 for key, value in entry.items():
-                    if isinstance(value, str):  # Ensure we're checking only string entries
-                        # Count usernames
+                    if isinstance(value, str):
                         for username in default_usernames:
                             if re.search(rf"\b{username}\b", value, re.IGNORECASE):
                                 credential_summary["Usernames"][username] += 1
-                        
-                        # Count passwords
                         for password in default_passwords:
                             if re.search(rf"\b{password}\b", value, re.IGNORECASE):
                                 credential_summary["Passwords"][password] += 1
@@ -135,21 +128,15 @@ for sip, data in bottom_ips:
     total_events = sum(sum(counter.values()) for counter in data.values() if isinstance(counter, Counter))
     print(f"- {sip}: {total_events} events detected")
 
-# Print suspicious file requests
-file_summary = Counter()
-for data in ip_activity.values():
-    file_summary.update(data["file_requests"])
+# General security event summary
+print("\n🔍 **General Security Event Summary Across All IPs:**")
+total_requests = sum(sum(data["request_methods"].values()) for data in ip_activity.values())
+total_hashes = sum(sum(hash_counts.values()) for hash_counts in hash_summary.values())
+total_credential_attempts = sum(credential_summary["Usernames"].values()) + sum(credential_summary["Passwords"].values())
 
-print("\n⚠ **Suspicious File Requests:**")
-for file, count in file_summary.most_common(10):
-    print(f"  {file}: {count} requests flagged as suspicious")
-
-# Print detected hashes
-print("\n✔ **Hashes Detected:**")
-for hash_type, hash_counts in hash_summary.items():
-    print(f"\n🔍 {hash_type} Hashes:")
-    for hash_value, count in hash_counts.most_common():
-        print(f"  - {hash_value}: {count} occurrences")
+print(f"✔ Total requests: {total_requests}")
+print(f"✔ Total detected hashes: {total_hashes}")
+print(f"✔ Total credential attempts: {total_credential_attempts}")
 
 # Print processing time
 end_time = time.time()
