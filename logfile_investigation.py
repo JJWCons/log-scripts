@@ -72,10 +72,10 @@ try:
 
             except json.JSONDecodeError:
                 print(f"❌ Error: Failed to parse a log entry: {line.strip()[:100]}...")
+                
 except FileNotFoundError:
     print(f"❌ Error: The file '{logfile_path}' was not found. Please check the filename and try again.")
     exit()
-    
             # Track events per IP
             method = entry.get("method", "UNKNOWN").strip().upper()
 
