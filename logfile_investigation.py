@@ -92,8 +92,10 @@ try:
                     ip_activity[sip]["url_accesses"][entry["url"]] += 1
                     for ext in suspicious_extensions:
                         if re.search(rf"\.{ext}\b", entry["url"], re.IGNORECASE):
-                            ip_activity[sip]["file_requests"][entry["url"]] += 1
-
+                            if "file_requests" not in ip_activity[sip]:  #  Ensure key exists
+                                ip_activity[sip]["file_requests"] = Counter()  #  Initialize tracking
+                            ip_activity[sip]["file_requests"][entry["url"]] += 1  #  Track suspicious files
+                            
                 if "time" in entry:
                     ip_activity[sip]["timestamps"].append(entry["time"])
                 # Update log start and end times
