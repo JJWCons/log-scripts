@@ -82,6 +82,12 @@ try:
 
                 if "time" in entry:
                     ip_activity[sip]["timestamps"].append(entry["time"])
+                # Update log start and end times
+                if log_start_time is None or entry["time"] < log_start_time:
+                    log_start_time = entry["time"]
+                if log_end_time is None or entry["time"] > log_end_time:
+                    log_end_time = entry["time"]
+
                 if "useragent" in entry:
                     for ua in entry["useragent"]:
                         user_agent_summary[ua] += 1
