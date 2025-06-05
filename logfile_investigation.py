@@ -99,19 +99,30 @@ try:
 
                 # Credential Attempts Tracking
                 for key, value in entry.items():
-                    if isinstance(value, str):  # Ensure it's a string before scanning
-
-                        # Expand search to look for usernames
+                    if isinstance(value, (str, list, dict)):  # Allow more formats
+                        
+                        # Expand search to look for predefined usernames
                         if key.lower() in {"username", "user", "login", "auth"}:
                             for username in default_usernames:
                                 if re.search(rf"\b{username}\b", value, re.IGNORECASE):
                                     credential_summary["Usernames"][username] += 1
 
-                        # Expand search to look for passwords
+                        # Expand search to look for predefined passwords
                         if key.lower() in {"password", "pass", "auth"}:
                             for password in default_passwords:
                                 if re.search(rf"\b{password}\b", value, re.IGNORECASE):
                                     credential_summary["Passwords"][password] += 1
+                        # Capture any username outside predefined list
+                        if key.lower() in {"username", "user", "login", "auth"}:
+                            detected_username = value.strip()
+                            if detected_username and detected_username not in default_usernames:
+                                credential_summary["Usernames"][detected_username] += 1  # Track unknown usernames
+
+                        # Capture any password outside predefined list
+                        if key.lower() in {"password", "pass", "auth"}:
+                            detected_password = value.strip()
+                            if detected_password and detected_password not in default_passwords:
+                                credential_summary["Passwords"][detected_password] += 1  # Track unknown passwords
 
                 # Hash detection
                 entry_text = json.dumps(entry)
