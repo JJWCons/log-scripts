@@ -123,7 +123,7 @@ try:
                             detected_password = value.strip()
                             if detected_password and detected_password not in default_passwords:
                                 credential_summary["Passwords"][detected_password] += 1  # Track unknown passwords
-
+                                    print(f"Checking entry for credentials: {entry}")
                 # Hash detection
                 entry_text = json.dumps(entry)
                 for hash_type, pattern in hash_patterns.items():
