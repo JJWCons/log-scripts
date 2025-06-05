@@ -67,10 +67,10 @@ try:
                     continue
 
                 # Debugging print: Check if "url" key exists in the log entry
-                print(f"Processing entry: {entry}")  # See full log entry structure
+                #print(f"Processing entry: {entry}")  # See full log entry structure
 
                 if "url" in entry:
-                    print(f"✅ Found URL: {entry['url']}")  # Debugging statement
+                    #print(f"✅ Found URL: {entry['url']}")  # Debugging statement
 
                     # Ensure URL tracking works
                     if entry["url"].strip():
