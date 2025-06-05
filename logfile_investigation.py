@@ -81,6 +81,7 @@ try:
                     for ext in suspicious_extensions:
                         if re.search(rf"\.{ext}\b", entry["url"], re.IGNORECASE):
                             ip_activity[sip]["file_requests"][entry["url"]] += 1
+
                 if "time" in entry:
                     ip_activity[sip]["timestamps"].append(entry["time"])
                 if "useragent" in entry:
@@ -114,40 +115,42 @@ except FileNotFoundError:
     print(f"❌ Error: The file '{logfile_path}' was not found. Please check the filename and try again.")
     exit()
 
-# Generate summaries
+# Display total number of unique IPs
 total_unique_ips = len(ip_activity)
-total_hashes = sum(sum(hash_counts.values()) for hash_counts in hash_summary.values())
-total_credential_attempts = sum(credential_summary["Usernames"].values()) + sum(credential_summary["Passwords"].values())
-total_requests = sum(sum(data["request_methods"].values()) for ip, data in ip_activity.items())
-
-# Print security summaries
 print(f"\n🧮 **Total Unique IP Addresses:** {total_unique_ips}")
-print(f"\n✔ **Total requests:** {total_requests}")
-print(f"✔ **Total detected hashes:** {total_hashes}")
-print(f"✔ **Total credential attempts:** {total_credential_attempts}")
 
-# Print request method summary
-print("\n✔ **Request Methods Used:**")
+# Find top 10 most active IPs
+top_ips = sorted(ip_activity.items(), key=lambda x: sum(sum(counter.values()) for counter in x[1].values() if isinstance(counter, Counter)), reverse=True)[:10]
+print("\n🔍 **Top 10 Most Active IP Addresses:**")
+for sip, data in top_ips:
+    total_events = sum(sum(counter.values()) for counter in data.values() if isinstance(counter, Counter))
+    print(f"- {sip}: {total_events} events detected")
 
-method_summary = Counter()
-for data in ip_activity.values():
-    method_summary.update(data["request_methods"])
+# Find bottom 10 least active IPs
+bottom_ips = sorted(ip_activity.items(), key=lambda x: sum(sum(counter.values()) for counter in x[1].values() if isinstance(counter, Counter)))[:10]
+print("\n🔍 **Bottom 10 Least Active IP Addresses:**")
+for sip, data in bottom_ips:
+    total_events = sum(sum(counter.values()) for counter in data.values() if isinstance(counter, Counter))
+    print(f"- {sip}: {total_events} events detected")
 
-# Merge duplicate "GET" entries
-final_methods = Counter()
-for method, count in method_summary.items():
-    normalized_method = method.strip().upper()
-    if normalized_method.startswith("GET"):
-        normalized_method = "GET"
-    final_methods[normalized_method] += count
+# Print top accessed URLs
+print("\n✔ **Top Accessed URLs:**")
+for url, count in Counter({url: sum(ip["url_accesses"][url] for ip in ip_activity.values()) for ip in ip_activity}).most_common(10):
+    print(f"  {url}: {count} accesses")
 
-for method, count in final_methods.items():
-    print(f"  {method}: {count} requests")
+# Print flagged **Suspicious File Requests**
+print("\n⚠ **Suspicious File Requests:**")
+for file, count in Counter({file: sum(ip["file_requests"][file] for ip in ip_activity.values()) for ip in ip_activity}).most_common(10):
+    print(f"  {file}: {count} requests flagged as suspicious")
+
+# Print detected hashes
+print("\n✔ **Hashes Detected:**")
+for hash_type, hash_counts in hash_summary.items():
+    print(f"\n🔍 {hash_type} Hashes:")
+    for hash_value, count in hash_counts.most_common():
+        print(f"  - {hash_value}: {count} occurrences")
 
 # Print processing time
 end_time = time.time()
-elapsed_time = end_time - start_time
-minutes = int(elapsed_time // 60)
-seconds = int(elapsed_time % 60)
-
+minutes, seconds = divmod(int(end_time - start_time), 60)
 print(f"\n⏳ **Log analysis completed in {minutes} minutes and {seconds} seconds**")
