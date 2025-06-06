@@ -171,7 +171,7 @@ else:
         total_events = sum(sum(counter.values()) for counter in data.values() if isinstance(counter, Counter))
         print(f"- {sip}: {total_events} events detected")
 
-print("\n---------------------------------\n")
+print("\n")
 print("✔ **Request Methods Used:**")
 
 seen_methods = set()
