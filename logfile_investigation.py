@@ -90,9 +90,9 @@ try:
                         print(f"🔐 Extracted {credential_type}: {credential_value}")  # ✅ Debugging print
                         credential_summary[credential_type][credential_value] += 1  
 
-        # ✅ Continue normal log processing
-        if "method" in entry:
-            ip_activity[sip]["request_methods"][entry["method"].upper()] += 1
+                    # ✅ Continue normal log processing
+                    if "method" in entry:
+                    ip_activity[sip]["request_methods"][entry["method"].upper()] += 1
 
     except json.JSONDecodeError:
         pass  
