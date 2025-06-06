@@ -125,6 +125,16 @@ try:
                     if key.lower() in {"username", "user", "login", "auth", "password", "pass"}:
                         print(f"✅ Found credential field: {key} -> {entry[key]}")  # Debugging print
 
+                # ✅ Step #2: Extract and store credentials
+                for key, value in entry.items():
+                    extracted_values = extract_text(value)  # ✅ Use refined extraction function
+
+                for text_value in extracted_values:
+                    if key.lower() in {"username", "user", "login", "auth"}:
+                        credential_summary["Usernames"][text_value] += 1
+                    if key.lower() in {"password", "pass", "auth"}:
+                        credential_summary["Passwords"][text_value] += 1
+
                 # ✅ Continue with credential extraction
                 for key, value in entry.items():
                     if isinstance(value, (str, list, dict)):  # Allow more formats
