@@ -66,13 +66,15 @@ try:
                 if not sip:
                     continue
 
-                # Debugging print: Check if "url" key exists in the log entry
-                print(f"Processing entry: {entry}")  # See full log entry structure
+                # ✅ Debugging print to inspect all keys in the log entry
+                for key in entry.keys():
+                    print(f"🔎 Log Entry Key Found: {key}")
 
-                # Check if credential-related fields exist in the entry
-                for key, value in entry.items():
-                    print(f"🔍 Checking Entry Key: {key} -> {value}")  # Debugging print
-                    
+                # ✅ Check if credential-related fields exist in the entry
+                for key in entry.keys():
+                    if key.lower() in {"username", "user", "login", "auth", "password", "pass"}:
+                        print(f"✅ Found credential field: {key} -> {entry[key]}")  # Debugging print
+                        
                 if "url" in entry:
                     #print(f"Found URL: {entry['url']}")  # Debugging statement
 
