@@ -76,15 +76,15 @@ try:
                 if not sip:
                     continue
                     
-                    for key, value in entry.items():
+                for key, value in entry.items():
                     print(f"🔎 Log Key: {key} -> Value: {value}")  # Debugging print
 
-                    for key, value in entry.items():
-                        lower_value = str(value).lower()  # Convert to lowercase for easier detection
-                        if any(keyword in lower_value for keyword in {"username", "user", "login", "auth"}):
-                            print(f"🟢 Possible Username Field: {key} -> {value}")
-                        if any(keyword in lower_value for keyword in {"password", "pass", "auth"}):
-                             print(f"🟢 Possible Password Field: {key} -> {value}")    
+                for key, value in entry.items():
+                    lower_value = str(value).lower()  # Convert to lowercase for easier detection
+                    if any(keyword in lower_value for keyword in {"username", "user", "login", "auth"}):
+                        print(f"🟢 Possible Username Field: {key} -> {value}")
+                    if any(keyword in lower_value for keyword in {"password", "pass", "auth"}):
+                        print(f"🟢 Possible Password Field: {key} -> {value}")    
                             
                 if "url" in entry:
                     #print(f"Found URL: {entry['url']}")  # Debugging statement
