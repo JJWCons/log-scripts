@@ -76,15 +76,9 @@ try:
                 if not sip:
                     continue
                     
-                # ✅ Debugging print to examine the full structure of each log entry
-                print(f"📜 Full Log Entry: {entry}")  
-
-                # ✅ Debugging print to check the 'data' field specifically
-                if "data" in entry:
-                    print(f"🔍 Inspecting 'data' field: {entry['data']}")  # Check if credentials exist there
-
-                # ✅ Now proceed with extracting credentials 
-                
+                    for key, value in entry.items():
+                    print(f"🔎 Log Key: {key} -> Value: {value}")  # Debugging print
+                    
                 if "url" in entry:
                     #print(f"Found URL: {entry['url']}")  # Debugging statement
 
