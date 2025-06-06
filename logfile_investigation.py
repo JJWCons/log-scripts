@@ -77,17 +77,13 @@ try:
                     continue
                     
                 for key, value in entry.items():
-                    value_str = str(value).lower()  
-                    if any(keyword in value_str for keyword in {"password", "pass", "auth"}):
-                        print(f"🔐 Possible Password Field: {key} -> {value_str}")  # Debugging print
+                    value_str = str(value).lower()  # ✅ Convert values to lowercase for better detection
 
-                for key, value in entry.items():
-                    value_str = str(value).lower()  
-
-                for password in default_passwords:
-                    if re.search(rf"{password}", value_str, re.IGNORECASE):  
-                        credential_summary["Passwords"][password] += 1
-                        print(f"🔐 Password Found: {password} in {key}: {value_str}")  # Debugging print
+                # ✅ Detect both usernames & passwords inside any field
+                for credential in default_usernames.union(default_passwords):  # ✅ Combine sets for efficiency
+                    if re.search(rf"\b{credential}\b", value_str, re.IGNORECASE):
+                        ip_activity[sip]["credential_attempts"][credential] += 1
+                        print(f"🔐 Credential Found: {credential} in {key}: {value_str}")  # ✅ Debugging print
                         
                 # ✅ Continue normal processing for URLs, requests, etc.
                 if "url" in entry:
