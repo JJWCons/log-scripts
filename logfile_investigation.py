@@ -91,7 +91,7 @@ try:
                     value_str = str(value).lower()  # Convert all values to lowercase strings
                     for password in default_passwords:
                         if re.search(rf"{password}", value_str, re.IGNORECASE):  # ✅ Match anywhere in text
-                        credential_summary["Passwords"][password] += 1
+                            credential_summary["Passwords"][password] += 1
                             print(f"🔐 Password Found: {password} in {key}: {value_str}")
                         
                 # ✅ Continue normal processing for URLs, requests, etc.
