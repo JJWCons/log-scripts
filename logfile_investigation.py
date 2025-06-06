@@ -70,9 +70,6 @@ try:
     with open(logfile_path, "r", encoding="utf-8") as f:
         for line in f:
             try:
-    with open(logfile_path, "r", encoding="utf-8") as f:
-        for line in f:
-            try:
                 entry = json.loads(line.strip())
 
                 sip = entry.get("sip", "").strip()
