@@ -172,7 +172,7 @@ total_unique_ips = len(ip_activity)
 print(f"\n🧮 **Total Unique IP Addresses:** {total_unique_ips}")
 
 top_ips = sorted(
-    ip_activity.items(),
+    ip_activity.items())
     key=lambda x: sum(sum(counter.values()) for counter in x[1].values() if isinstance(counter, Counter)),
     reverse=True
 )[:10]
