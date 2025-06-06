@@ -76,15 +76,28 @@ try:
                 if not sip:
                     continue
                     
-                    for key, value in entry.items():
-                        value_str = str(value).lower()
-                        if re.search(r"(password|pass|auth|login|user)=([\w\d!@#$%^&*()-_+]+)", value_str, re.IGNORECASE):
-                            print(f"🔐 Extracted Possible Credential: {key} -> {value_str}")  # Debugging print
+                    # ✅ Process URLs for credential detection
+                    if "url" in entry:
+                        url_str = entry["url"].lower()
+            
+                    # ✅ Debugging print to confirm URL format
+                    print(f"🌐 Found URL: {url_str}")  
 
-                        if any(keyword in json.dumps(entry).lower() for keyword in {"password", "pass", "auth", "login"}):
-                            print(f"🔎 Raw Log Entry Containing Credentials: {entry}")
-                
-                # ✅ Continue normal processing for URLs, requests, etc.
+                    # ✅ Check for credentials inside the query string
+                    match = re.search(r"(username|user|login|email|account|pass|password|auth)=([\w\d!@#$%^&*()-_+]+)", url_str, re.IGNORECASE)
+                    if match:
+                        credential_type, credential_value = match.groups()
+                        print(f"🔐 Extracted {credential_type}: {credential_value}")  # ✅ Debugging print
+                        credential_summary[credential_type][credential_value] += 1  
+
+        # ✅ Continue normal log processing
+        if "method" in entry:
+            ip_activity[sip]["request_methods"][entry["method"].upper()] += 1
+
+    except json.JSONDecodeError:
+        pass  
+    except Exception as e:
+        print(f"❌ Unexpected error: {e}")                # ✅ Continue normal processing for URLs, requests, etc.
                 if "url" in entry:
                     print(f"🌐 Found URL: {entry['url']}")  # Debugging print        # Continue normal processing for URLs, requests, etc.
                     
