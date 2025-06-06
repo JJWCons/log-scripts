@@ -66,15 +66,13 @@ try:
                 if not sip:
                     continue
 
-                # ✅ Debugging print to inspect all keys in the log entry
-                for key in entry.keys():
-                    print(f"🔎 Log Entry Key Found: {key}")
+                # ✅ Debugging print to check all keys in the log entry
+                print(f"🔎 Log Entry Keys Found: {list(entry.keys())}")
 
-                # ✅ Check if credential-related fields exist in the entry
-                for key in entry.keys():
-                    if key.lower() in {"username", "user", "login", "auth", "password", "pass"}:
-                        print(f"✅ Found credential field: {key} -> {entry[key]}")  # Debugging print
-                        
+                # ✅ Debugging print to check the `data` field specifically
+                if "data" in entry:
+                    print(f"🔍 Inspecting 'data' field: {entry['data']}")  # Check if credentials are inside `data`
+                    
                 if "url" in entry:
                     #print(f"Found URL: {entry['url']}")  # Debugging statement
 
