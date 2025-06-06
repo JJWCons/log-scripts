@@ -1,5 +1,6 @@
 import json
 import re
+import unicodedata
 from collections import defaultdict, Counter
 import time
 
@@ -47,6 +48,13 @@ ip_activity = defaultdict(lambda: {
 hash_summary = defaultdict(Counter)
 credential_summary = {"Usernames": Counter(), "Passwords": Counter()}
 user_agent_summary = Counter()
+
+def normalize_method(method):
+    if not isinstance(method, str):
+        return ""
+    method = unicodedata.normalize("NFKC", method)
+    method = re.sub(r"\s+", "", method)
+    return method.upper()
 
 def scan_for_credentials(obj, usernames_counter, passwords_counter):
     credential_patterns = [
@@ -101,10 +109,12 @@ try:
                         credential_summary[credential_type][credential_value] += 1
 
                 if "method" in entry:
-                    ip_activity[sip]["request_methods"][entry["method"].upper()] += 1
+                    method = normalize_method(entry["method"])
+                    if method:
+                        ip_activity[sip]["request_methods"][method] += 1
 
                 if "url" in entry:
-                    clean_url = entry["url"].strip()
+                    clean_url = entry["url"].strip().lower().rstrip('/')
                     ip_activity[sip]["url_accesses"][clean_url] += 1
                     for ext in suspicious_extensions:
                         if re.search(rf"\.{ext}\b", clean_url, re.IGNORECASE):
@@ -119,12 +129,11 @@ try:
 
                 if "useragent" in entry:
                     for ua in entry["useragent"]:
-                        user_agent_summary[ua] += 1
+                        user_agent_summary[ua.strip()] += 1
 
                 if entry.get("response_id") and "status_code" in entry["response_id"]:
                     ip_activity[sip]["response_codes"][str(entry["response_id"]["status_code"])] += 1
 
-                # 🔍 Enhanced credential scanning
                 scan_for_credentials(entry, credential_summary["Usernames"], credential_summary["Passwords"])
 
                 entry_text = json.dumps(entry)
@@ -172,18 +181,10 @@ else:
         total_events = sum(sum(counter.values()) for counter in data.values() if isinstance(counter, Counter))
         print(f"- {sip}: {total_events} events detected")
 
-print("\n---------------------------------\n")
-print("✔ **Request Methods Used:**")
-
-seen_methods = set()
+print("\n✔ **Request Methods Used:**")
 method_summary = Counter()
-
-for ip, data in ip_activity.items():
-    for method, count in data["request_methods"].items():
-        request_key = f"{ip}-{method}"
-        if request_key not in seen_methods:
-            method_summary[method] += count
-            seen_methods.add(request_key)
+for data in ip_activity.values():
+    method_summary.update(data["request_methods"])
 
 if not method_summary:
     print("❌ No request methods detected in the logs.")
@@ -208,37 +209,43 @@ for data in ip_activity.values():
     if "file_requests" in data:
         file_summary.update(data["file_requests"])
 
-if not file_summary:
-    print("❌ No suspicious file requests detected.")
-else:
-    for file, count in file_summary.most_common(10):
-        print(f"  {file}: {count} flagged as suspicious")
 
-# ... [everything above remains unchanged] ...
+if not file_summary:
+    print("❌ No suspicious file requests detected.")
+else:
+    for file, count in file_summary.most_common(10):
+        print(f"  {file}: {count} flagged as suspicious")
+
+print("\n🧭 **Top 5 User-Agent Strings:**")
+if not user_agent_summary:
+    print("❌ No user-agent strings detected.")
+else:
+    for ua, count in user_agent_summary.most_common(5):
+        print(f"  {ua}: {count} occurrences")
 
 print("\n✔ **Hashes Detected:**")
 if not hash_summary:
-    print("❌ No hashes detected in the log entries.")
+    print("❌ No hashes detected in the log entries.")
 else:
-    for hash_type, hash_counts in hash_summary.items():
-        if hash_counts:
-            print(f"\n🔍 {hash_type} Hashes:")
-            for hash_value, count in hash_counts.most_common():
-                print(f"  {hash_value}: {count} occurrences")
+    for hash_type, hash_counts in hash_summary.items():
+        if hash_counts:
+            print(f"\n🔍 {hash_type} Hashes:")
+            for hash_value, count in hash_counts.most_common():
+                print(f"  {hash_value}: {count} occurrences")
 
 print("\n🔐 **Credential Summary:**")
 if not credential_summary["Usernames"] and not credential_summary["Passwords"]:
-    print("❌ No credentials detected.")
+    print("❌ No credentials detected.")
 else:
-    print("\nUsernames:")
-    for user, count in credential_summary["Usernames"].items():
-        print(f"  {user}: {count} occurrences")
+    print("\nUsernames:")
+    for user, count in credential_summary["Usernames"].most_common(10):
+        print(f"  {user}: {count} occurrences")
 
-    print("\nPasswords:")
-    for password, count in credential_summary["Passwords"].items():
-        print(f"  {password}: {count} occurrences")
+    print("\nPasswords:")
+    for password, count in credential_summary["Passwords"].most_common(10):
+        print(f"  {password}: {count} occurrences")
 
-# ✅ Final timing output
+# Final timing output
 end_time = time.time()
 minutes, seconds = divmod(int(end_time - start_time), 60)
 print(f"\n⏳ **Log analysis completed in {minutes} minutes and {seconds} seconds**")
