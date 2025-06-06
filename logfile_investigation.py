@@ -67,8 +67,12 @@ try:
                     continue
 
                 # Debugging print: Check if "url" key exists in the log entry
-                #print(f"Processing entry: {entry}")  # See full log entry structure
+                print(f"Processing entry: {entry}")  # See full log entry structure
 
+                # Check if credential-related fields exist in the entry
+                for key, value in entry.items():
+                    print(f"🔍 Checking Entry Key: {key} -> {value}")  # Debugging print
+                    
                 if "url" in entry:
                     #print(f"Found URL: {entry['url']}")  # Debugging statement
 
