@@ -208,6 +208,13 @@ else:
     for file, count in file_summary.most_common(10):
         print(f"  {file}: {count} flagged as suspicious")
 
+print("\n🧭 **Top 5 User-Agent Strings:**")
+if not user_agent_summary:
+    print("❌ No user-agent strings detected.")
+else:
+    for ua, count in user_agent_summary.most_common(5):
+        print(f"  {ua}: {count} occurrences")
+
 print("\n✔ **Hashes Detected:**")
 if not hash_summary:
     print("❌ No hashes detected in the log entries.")
