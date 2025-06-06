@@ -2,9 +2,9 @@ import json
 import re
 from collections import defaultdict, Counter
 import time
+
 log_start_time = None
 log_end_time = None
-
 start_time = time.time()
 
 # Define suspicious file extensions to flag as potentially malicious
@@ -52,6 +52,16 @@ hash_summary = defaultdict(Counter)
 credential_summary = {"Usernames": Counter(), "Passwords": Counter()}
 user_agent_summary = Counter()
 
+#`extract_text`
+def extract_text(value):
+    if isinstance(value, str):
+        return [value.strip()]  # Removes extra spaces
+    elif isinstance(value, list):
+        return [str(v).strip() for v in value]  # Converts list entries
+    elif isinstance(value, dict):
+        return [str(v).strip() for v in value.values()]  # Extracts dictionary values
+    return []
+    
 # Open and parse JSON log file
 logfile_path = input("📂 Enter the log file name (e.g., webhoneypot-2025-05-31.json): ").strip()
 
