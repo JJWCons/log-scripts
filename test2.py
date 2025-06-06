@@ -101,7 +101,9 @@ try:
                         credential_summary[credential_type][credential_value] += 1
 
                 if "method" in entry:
-                    ip_activity[sip]["request_methods"][entry["method"].upper()] += 1
+                    method = entry.get("method", "").strip().upper()
+                    if method:
+                        ip_activity[sip]["request_methods"][method] += 1
 
                 if "url" in entry:
                     clean_url = entry["url"].strip()
