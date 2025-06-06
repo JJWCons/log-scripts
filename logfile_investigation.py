@@ -77,23 +77,17 @@ try:
                     continue
                     
                 for key, value in entry.items():
-                    value_str = str(value).lower()  # ✅ Convert all values to lowercase strings
+                    value_str = str(value).lower()  
+                    if any(keyword in value_str for keyword in {"password", "pass", "auth"}):
+                        print(f"🔐 Possible Password Field: {key} -> {value_str}")  # Debugging print
 
-                # ✅ Check if possible username fields exist
-                if any(keyword in value_str for keyword in {"username", "user", "login", "account"}):
-                    print(f"🟢 Possible Username Field: {key} -> {value_str}")  # ✅ Debugging print
+                for key, value in entry.items():
+                    value_str = str(value).lower()  
 
-                # ✅ Extract usernames before passwords
-                for username in default_usernames:
-                    if re.search(rf"\b{username}\b", value_str, re.IGNORECASE):  # ✅ Match usernames correctly
-                        credential_summary["Usernames"][username] += 1
-                        print(f"🟢 Username Found: {username} in {key}: {value_str}")  # ✅ Debugging print
-
-                # ✅ Extract passwords
                 for password in default_passwords:
-                    if re.search(rf"{password}", value_str, re.IGNORECASE):  # ✅ Match passwords correctly
+                    if re.search(rf"{password}", value_str, re.IGNORECASE):  
                         credential_summary["Passwords"][password] += 1
-                        print(f"🔐 Password Found: {password} in {key}: {value_str}")  # ✅ Debugging print
+                        print(f"🔐 Password Found: {password} in {key}: {value_str}")  # Debugging print
                         
                 # ✅ Continue normal processing for URLs, requests, etc.
                 if "url" in entry:
