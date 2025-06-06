@@ -16,3 +16,8 @@ This Python script analyzes web honeypot JSON logs to provide a detailed breakdo
 
 ```bash
 python single_Multi_IP.py
+
+You will be prompted to enter:
+- The log file name (e.g., webhoneypot-2025-05-30.json)
+Then you will be prompted to enter:
+- One or More IP addresses (comma-seperated)
