@@ -80,25 +80,19 @@ try:
                 for key, value in entry.items():
                     print(f"🔎 Log Key: {key} -> Value: {value}")  # Debugging print
 
-                # ✅ Check if credentials might exist in any fields
+                # ✅ Extract and track credentials
                 for key, value in entry.items():
-                    lower_value = str(value).lower()  # Convert to lowercase for easier detection
-                    if any(keyword in lower_value for keyword in {"username", "user", "login", "auth"}):
-                        print(f"🟢 Possible Username Field: {key} -> {value}")
-                    if any(keyword in lower_value for keyword in {"password", "pass", "auth"}):
-                        print(f"🟢 Possible Password Field: {key} -> {value}")
+                    if isinstance(value, str):  # ✅ Process only string values
+                        for username in default_usernames:
+                            if re.search(rf"\b{username}\b", value, re.IGNORECASE):  # ✅ Look for usernames
+                                credential_summary["Usernames"][username] += 1
+                                print(f"🟢 Username Found: {username} in {key}: {value}")  # Debugging print
 
-                # ✅ Search for credentials inside headers
-                if "headers" in entry:
-                    for header_key, header_value in entry["headers"].items():
-                        if any(keyword in header_key.lower() for keyword in {"username", "password", "login", "auth"}):
-                            print(f"🟢 Possible Credential in Header: {header_key} -> {header_value}")
-
-                # ✅ Search for credentials inside URLs
-                if "url" in entry:
-                    if any(keyword in entry["url"].lower() for keyword in {"username", "password", "login", "auth"}):
-                        print(f"🟢 Possible Credential in URL: {entry['url']}")
-
+                for password in default_passwords:
+                    if re.search(rf"\b{password}\b", value, re.IGNORECASE):  # ✅ Look for passwords
+                        credential_summary["Passwords"][password] += 1
+                        print(f"🔐 Password Found: {password} in {key}: {value}")  # Debugging print
+                        
                 # ✅ Continue normal processing for URLs, requests, etc.
                 if "url" in entry:
                     print(f"🌐 Found URL: {entry['url']}")  # Debugging print        # Continue normal processing for URLs, requests, etc.
