@@ -170,7 +170,7 @@ else:
     for sip, data in bottom_ips:
         total_events = sum(sum(counter.values()) for counter in data.values() if isinstance(counter, Counter))
         print(f"- {sip}: {total_events} events detected")
-
+print()
 print("✔ **Request Methods Used:**")
 
 method_summary = Counter()
