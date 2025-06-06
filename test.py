@@ -214,7 +214,31 @@ else:
     for file, count in file_summary.most_common(10):
         print(f"  {file}: {count} flagged as suspicious")
 
+# ... [everything above remains unchanged] ...
+
 print("\n✔ **Hashes Detected:**")
 if not hash_summary:
     print("❌ No hashes detected in the log entries.")
 else:
+    for hash_type, hash_counts in hash_summary.items():
+        if hash_counts:
+            print(f"\n🔍 {hash_type} Hashes:")
+            for hash_value, count in hash_counts.most_common():
+                print(f"  {hash_value}: {count} occurrences")
+
+print("\n🔐 **Credential Summary:**")
+if not credential_summary["Usernames"] and not credential_summary["Passwords"]:
+    print("❌ No credentials detected.")
+else:
+    print("\nUsernames:")
+    for user, count in credential_summary["Usernames"].items():
+        print(f"  {user}: {count} occurrences")
+
+    print("\nPasswords:")
+    for password, count in credential_summary["Passwords"].items():
+        print(f"  {password}: {count} occurrences")
+
+# ✅ Final timing output
+end_time = time.time()
+minutes, seconds = divmod(int(end_time - start_time), 60)
+print(f"\n⏳ **Log analysis completed in {minutes} minutes and {seconds} seconds**")
