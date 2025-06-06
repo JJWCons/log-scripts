@@ -7,10 +7,8 @@ log_start_time = None
 log_end_time = None
 start_time = time.time()
 
-# Define suspicious file extensions to flag as potentially malicious
 suspicious_extensions = ["php", "exe", "zip", "rar", "tar", "gz", "bat", "sh", "py"]
 
-# Define regex patterns for common hash formats
 hash_patterns = {
     "MD5": r"\b[a-f0-9]{32}\b",
     "SHA1": r"\b[a-f0-9]{40}\b",
@@ -23,7 +21,6 @@ hash_patterns = {
     "bcrypt": r"\$2[aby]\$[0-9]{2}\$[./A-Za-z0-9]{53}"
 }
 
-# Define commonly used usernames & passwords
 default_usernames = {
     "admin", "root", "user", "test", "guest", "support", "sysadmin", "operator",
     "developer", "administrator", "superuser", "service", "manager", "backup",
@@ -36,7 +33,6 @@ default_passwords = {
     "monkey", "dragon", "football", "iloveyou", "123123"
 }
 
-# Storage for security event summaries
 ip_activity = defaultdict(lambda: {
     "request_methods": Counter(),
     "url_accesses": Counter(),
@@ -52,19 +48,38 @@ hash_summary = defaultdict(Counter)
 credential_summary = {"Usernames": Counter(), "Passwords": Counter()}
 user_agent_summary = Counter()
 
-# Function to extract text from various data types
-def extract_text(value):
-    if isinstance(value, str):
-        return [value.strip()]
-    elif isinstance(value, list):
-        return [str(v).strip() for v in value]
-    elif isinstance(value, dict):
-        return [str(v).strip() for v in value.values()]
-    return []
+def scan_for_credentials(obj, usernames_counter, passwords_counter):
+    credential_patterns = [
+        r"(user(name)?|login|auth)[=: ]+([^\s&\"',;]+)",
+        r"(pass(word)?|pwd)[=: ]+([^\s&\"',;]+)"
+    ]
 
-# Prompt for log file name
+    def recursive_scan(value):
+        if isinstance(value, dict):
+            for k, v in value.items():
+                recursive_scan(k)
+                recursive_scan(v)
+        elif isinstance(value, list):
+            for item in value:
+                recursive_scan(item)
+        elif isinstance(value, str):
+            val = value.strip()
+            for pattern in credential_patterns:
+                matches = re.findall(pattern, val, re.IGNORECASE)
+                for match in matches:
+                    if "user" in match[0].lower() or "login" in match[0].lower():
+                        usernames_counter[match[2]] += 1
+                    elif "pass" in match[0].lower() or "pwd" in match[0].lower():
+                        passwords_counter[match[2]] += 1
+            if val in default_usernames:
+                usernames_counter[val] += 1
+            if val in default_passwords:
+                passwords_counter[val] += 1
+
+    recursive_scan(obj)
+
 logfile_path = input("📂 Enter the log file name (e.g., webhoneypot-2025-05-31.json): ").strip()
-# Check if the file exists before opening it
+
 try:
     with open(logfile_path, "r", encoding="utf-8") as f:
         for line in f:
@@ -73,9 +88,8 @@ try:
 
                 sip = entry.get("sip", "").strip()
                 if not sip:
-                    continue  # Skip entries without source IP
+                    continue
 
-                # Process URLs for credential detection
                 if "url" in entry:
                     url_str = entry["url"].lower()
                     match = re.search(
@@ -86,11 +100,9 @@ try:
                         credential_type, credential_value = match.groups()
                         credential_summary[credential_type][credential_value] += 1
 
-                # Track request methods
                 if "method" in entry:
                     ip_activity[sip]["request_methods"][entry["method"].upper()] += 1
 
-                # Track URL accesses and suspicious file requests
                 if "url" in entry:
                     clean_url = entry["url"].strip()
                     ip_activity[sip]["url_accesses"][clean_url] += 1
@@ -98,7 +110,6 @@ try:
                         if re.search(rf"\.{ext}\b", clean_url, re.IGNORECASE):
                             ip_activity[sip]["file_requests"][clean_url] += 1
 
-                # Track timestamps
                 if "time" in entry:
                     ip_activity[sip]["timestamps"].append(entry["time"])
                     if log_start_time is None or entry["time"] < log_start_time:
@@ -106,25 +117,15 @@ try:
                     if log_end_time is None or entry["time"] > log_end_time:
                         log_end_time = entry["time"]
 
-                # Track user agents
                 if "useragent" in entry:
                     for ua in entry["useragent"]:
                         user_agent_summary[ua] += 1
 
-                # Track response codes
                 if entry.get("response_id") and "status_code" in entry["response_id"]:
                     ip_activity[sip]["response_codes"][str(entry["response_id"]["status_code"])] += 1
 
-                # Credential Attempts Tracking
-                for key, value in entry.items():
-                    extracted_values = extract_text(value)
-                    for text_value in extracted_values:
-                        if key.lower() in {"username", "user", "login", "auth"}:
-                            credential_summary["Usernames"][text_value] += 1
-                        if key.lower() in {"password", "pass", "auth"}:
-                            credential_summary["Passwords"][text_value] += 1
+                scan_for_credentials(entry, credential_summary["Usernames"], credential_summary["Passwords"])
 
-                # Hash detection
                 entry_text = json.dumps(entry)
                 for hash_type, pattern in hash_patterns.items():
                     matches = re.findall(pattern, entry_text, re.IGNORECASE)
@@ -139,17 +140,13 @@ try:
 except FileNotFoundError:
     print(f"❌ Error: The file '{logfile_path}' was not found. Please check the filename and try again.")
     exit()
-# Print request methods, suspicious files, and other summaries below
 
-# Display Timestamps 
 print("\n🕒 **Log Start Time:**", log_start_time if log_start_time else "❌ No start time detected")
 print("🕒 **Log End Time:**", log_end_time if log_end_time else "❌ No end time detected")
 
-# Display total number of unique IPs
 total_unique_ips = len(ip_activity)
 print(f"\n🧮 **Total Unique IP Addresses:** {total_unique_ips}")
 
-# Find top 10 most active IPs
 top_ips = sorted(
     ip_activity.items(),
     key=lambda x: sum(sum(counter.values()) for counter in x[1].values() if isinstance(counter, Counter)),
@@ -161,7 +158,6 @@ for sip, data in top_ips:
     total_events = sum(sum(counter.values()) for counter in data.values() if isinstance(counter, Counter))
     print(f"- {sip}: {total_events} events detected")
 
-# Find bottom 10 least active IPs
 bottom_ips = sorted(
     ip_activity.items(),
     key=lambda x: sum(sum(counter.values()) for counter in x[1].values() if isinstance(counter, Counter))
@@ -175,7 +171,6 @@ else:
         total_events = sum(sum(counter.values()) for counter in data.values() if isinstance(counter, Counter))
         print(f"- {sip}: {total_events} events detected")
 
-# Add a clean separation
 print("\n---------------------------------\n")
 print("✔ **Request Methods Used:**")
 
@@ -195,7 +190,6 @@ else:
     for method, count in sorted(method_summary.items(), key=lambda x: x[1], reverse=True):
         print(f"  {method}: {count} requests")
 
-# Print top accessed URLs
 print("\n✔ **Top Accessed URLs:**")
 url_summary = Counter()
 for data in ip_activity.values():
@@ -207,7 +201,6 @@ else:
     for url, count in url_summary.most_common(10):
         print(f"  {url}: {count} accesses")
 
-# Print suspicious file requests
 print("\n **Suspicious File Requests:**")
 file_summary = Counter()
 for data in ip_activity.values():
@@ -219,31 +212,33 @@ if not file_summary:
 else:
     for file, count in file_summary.most_common(10):
         print(f"  {file}: {count} flagged as suspicious")
-# Print detected hashes or indicate none found
+
 print("\n✔ **Hashes Detected:**")
 if not hash_summary:
-    print("❌ No hashes detected in the log entries.")
+    
+print("\n✔ **Hashes Detected:**")
+if not hash_summary:
+    print("❌ No hashes detected in the log entries.")
 else:
-    for hash_type, hash_counts in hash_summary.items():
-        if hash_counts:
-            print(f"\n🔍 {hash_type} Hashes:")
-            for hash_value, count in hash_counts.most_common():
-                print(f"  {hash_value}: {count} occurrences")
+    for hash_type, hash_counts in hash_summary.items():
+        if hash_counts:
+            print(f"\n🔍 {hash_type} Hashes:")
+            for hash_value, count in hash_counts.most_common():
+                print(f"  {hash_value}: {count} occurrences")
 
-# Print summary of attempted credentials
 print("\n🔐 **Credential Summary:**")
 if not credential_summary["Usernames"] and not credential_summary["Passwords"]:
-    print("❌ No credentials detected.")
+    print("❌ No credentials detected.")
 else:
-    print("\nUsernames:")
-    for user, count in credential_summary["Usernames"].items():
-        print(f"  {user}: {count} occurrences")
+    print("\nUsernames:")
+    for user, count in credential_summary["Usernames"].most_common(10):
+        print(f"  {user}: {count} occurrences")
 
-    print("\nPasswords:")
-    for password, count in credential_summary["Passwords"].items():
-        print(f"  {password}: {count} occurrences")
+    print("\nPasswords:")
+    for password, count in credential_summary["Passwords"].most_common(10):
+        print(f"  {password}: {count} occurrences")
 
-# Print processing time
+# Final timing output
 end_time = time.time()
 minutes, seconds = divmod(int(end_time - start_time), 60)
 print(f"\n⏳ **Log analysis completed in {minutes} minutes and {seconds} seconds**")
