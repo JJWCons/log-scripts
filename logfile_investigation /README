@@ -1,0 +1,20 @@
+### 📁 `logfile_investigation/README.md`
+
+# 📊 Web Honeypot Log Summary Analyzer
+
+This Python script provides a broad overview of activity across all IPs in a web honeypot JSON log. 
+It helps identify the most and least active IPs, common attack patterns, and global trends.
+
+## ✨ Features
+
+- **Top & Bottom IPs**: Lists the most and least active IP addresses.
+- **Suspicious File Detection**: Flags requests for potentially malicious files.
+- **Credential Detection**: Extracts usernames and passwords using pattern matching and base64 decoding.
+- **Hash Detection**: Identifies common hash formats in log entries.
+- **User-Agent & Method Summary**: Aggregates request methods and user-agent strings.
+- **Time Frame Reporting**: Shows the overall log start and end times.
+
+## 🛠️ Usage
+
+```bash
+python logfile_investigation.py
