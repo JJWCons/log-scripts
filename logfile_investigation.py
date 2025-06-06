@@ -76,22 +76,19 @@ try:
                 if not sip:
                     continue
                     
-                # ✅ Debugging print to see all keys and values in the entry
                 for key, value in entry.items():
-                    print(f"🔎 Log Key: {key} -> Value: {value}")  # Debugging print
+                    if isinstance(value, (str, int, float)):  # ✅ Ensure it's a string-compatible type
+                        value_str = str(value)  # ✅ Convert to string if needed
 
-                # ✅ Extract and track credentials
-                for key, value in entry.items():
-                    if isinstance(value, str):  # ✅ Process only string values
-                        for username in default_usernames:
-                            if re.search(rf"\b{username}\b", value, re.IGNORECASE):  # ✅ Look for usernames
-                                credential_summary["Usernames"][username] += 1
-                                print(f"🟢 Username Found: {username} in {key}: {value}")  # Debugging print
+                for username in default_usernames:
+                    if re.search(rf"\b{username}\b", value_str, re.IGNORECASE):  # ✅ Look for usernames
+                        credential_summary["Usernames"][username] += 1
+                        print(f"🟢 Username Found: {username} in {key}: {value_str}")  # Debugging print
 
                 for password in default_passwords:
-                    if re.search(rf"\b{password}\b", value, re.IGNORECASE):  # ✅ Look for passwords
+                    if re.search(rf"\b{password}\b", value_str, re.IGNORECASE):  # ✅ Look for passwords
                         credential_summary["Passwords"][password] += 1
-                        print(f"🔐 Password Found: {password} in {key}: {value}")  # Debugging print
+                        print(f"🔐 Password Found: {password} in {key}: {value_str}")  # Debugging print 
                         
                 # ✅ Continue normal processing for URLs, requests, etc.
                 if "url" in entry:
