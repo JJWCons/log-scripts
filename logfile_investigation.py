@@ -65,14 +65,21 @@ try:
                 sip = entry.get("sip", "").strip()
                 if not sip:
                     continue
-
-                # ✅ Debugging print to check all keys in the log entry
-                print(f"🔎 Log Entry Keys Found: {list(entry.keys())}")
-
-                # ✅ Debugging print to check the `data` field specifically
+                # ✅ Debugging print to check the 'data' field
                 if "data" in entry:
-                    print(f"🔍 Inspecting 'data' field: {entry['data']}")  # Check if credentials are inside `data`
-                    
+                    print(f"🔍 Inspecting 'data' field: {entry['data']}")  # Debugging print
+
+                # ✅ Extract and track credentials from 'data'
+                extracted_values = extract_text(entry["data"])  # ✅ Use refined extraction
+                for text_value in extracted_values:
+                    lower_text = text_value.lower()  # Convert to lowercase for easier detection
+                    if any(keyword in lower_text for keyword in {"username", "user", "login", "auth"}):
+                        credential_summary["Usernames"][text_value] += 1
+                        print(f"🟢 Username Detected: {text_value}")  # Debugging print
+                    if any(keyword in lower_text for keyword in {"password", "pass", "auth"}):
+                        credential_summary["Passwords"][text_value] += 1
+                        print(f"🟢 Password Detected: {text_value}")  # Debugging print 
+                        
                 if "url" in entry:
                     #print(f"Found URL: {entry['url']}")  # Debugging statement
 
