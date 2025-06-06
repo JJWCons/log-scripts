@@ -1,5 +1,7 @@
 import json
 import re
+import unicodedata
+import base64
 from collections import defaultdict, Counter
 import time
 
@@ -48,11 +50,24 @@ hash_summary = defaultdict(Counter)
 credential_summary = {"Usernames": Counter(), "Passwords": Counter()}
 user_agent_summary = Counter()
 
+def normalize_method(method):
+    if not isinstance(method, str):
+        return ""
+    method = unicodedata.normalize("NFKC", method)
+    method = re.sub(r"\s+", "", method)
+    return method.upper()
+
 def scan_for_credentials(obj, usernames_counter, passwords_counter):
     credential_patterns = [
         r"(user(name)?|login|auth)[=: ]+([^\s&\"',;]+)",
         r"(pass(word)?|pwd)[=: ]+([^\s&\"',;]+)"
     ]
+
+    def is_base64(s):
+        try:
+            return base64.b64encode(base64.b64decode(s)).decode() == s
+        except Exception:
+            return False
 
     def recursive_scan(value):
         if isinstance(value, dict):
@@ -75,6 +90,12 @@ def scan_for_credentials(obj, usernames_counter, passwords_counter):
                 usernames_counter[val] += 1
             if val in default_passwords:
                 passwords_counter[val] += 1
+            if is_base64(val):
+                decoded_val = base64.b64decode(val).decode('utf-8', errors='ignore').strip()
+                if decoded_val in default_passwords:
+                    passwords_counter[decoded_val] += 1
+                elif re.match(r'[A-Za-z0-9!@#$%^&*()-_+]{8,}', decoded_val):
+                    passwords_counter[decoded_val] += 1
 
     recursive_scan(obj)
 
@@ -101,12 +122,12 @@ try:
                         credential_summary[credential_type][credential_value] += 1
 
                 if "method" in entry:
-                    method = entry.get("method", "").strip().upper()
+                    method = normalize_method(entry["method"])
                     if method:
                         ip_activity[sip]["request_methods"][method] += 1
 
                 if "url" in entry:
-                    clean_url = entry["url"].strip()
+                    clean_url = entry["url"].strip().lower().rstrip('/')
                     ip_activity[sip]["url_accesses"][clean_url] += 1
                     for ext in suspicious_extensions:
                         if re.search(rf"\.{ext}\b", clean_url, re.IGNORECASE):
@@ -121,7 +142,7 @@ try:
 
                 if "useragent" in entry:
                     for ua in entry["useragent"]:
-                        user_agent_summary[ua] += 1
+                        user_agent_summary[ua.strip()] += 1
 
                 if entry.get("response_id") and "status_code" in entry["response_id"]:
                     ip_activity[sip]["response_codes"][str(entry["response_id"]["status_code"])] += 1
@@ -143,6 +164,7 @@ except FileNotFoundError:
     print(f"❌ Error: The file '{logfile_path}' was not found. Please check the filename and try again.")
     exit()
 
+
 print("\n🕒 **Log Start Time:**", log_start_time if log_start_time else "❌ No start time detected")
 print("🕒 **Log End Time:**", log_end_time if log_end_time else "❌ No end time detected")
 
@@ -150,95 +172,94 @@ total_unique_ips = len(ip_activity)
 print(f"\n🧮 **Total Unique IP Addresses:** {total_unique_ips}")
 
 top_ips = sorted(
-    ip_activity.items(),
-    key=lambda x: sum(sum(counter.values()) for counter in x[1].values() if isinstance(counter, Counter)),
-    reverse=True
+    ip_activity.items(),
+    key=lambda x: sum(sum(counter.values()) for counter in x[1].values() if isinstance(counter, Counter)),
+    reverse=True
 )[:10]
 
 print("\n🔍 **Top 10 Most Active IP Addresses:**")
 for sip, data in top_ips:
-    total_events = sum(sum(counter.values()) for counter in data.values() if isinstance(counter, Counter))
-    print(f"- {sip}: {total_events} events detected")
+    total_events = sum(sum(counter.values()) for counter in data.values() if isinstance(counter, Counter))
+    print(f"- {sip}: {total_events} events detected")
 
 bottom_ips = sorted(
-    ip_activity.items(),
-    key=lambda x: sum(sum(counter.values()) for counter in x[1].values() if isinstance(counter, Counter))
+    ip_activity.items(),
+    key=lambda x: sum(sum(counter.values()) for counter in x[1].values() if isinstance(counter, Counter))
 )[:10]
 
 print("\n🔍 **Bottom 10 Least Active IP Addresses:**")
 if not bottom_ips:
-    print("❌ No data available for least active IPs.")
+    print("❌ No data available for least active IPs.")
 else:
-    for sip, data in bottom_ips:
-        total_events = sum(sum(counter.values()) for counter in data.values() if isinstance(counter, Counter))
-        print(f"- {sip}: {total_events} events detected")
-print()
-print("✔ **Request Methods Used:**")
+    for sip, data in bottom_ips:
+        total_events = sum(sum(counter.values()) for counter in data.values() if isinstance(counter, Counter))
+        print(f"- {sip}: {total_events} events detected")
 
+print("\n✔ **Request Methods Used:**")
 method_summary = Counter()
-
 for data in ip_activity.values():
-    method_summary.update(data["request_methods"])
+    method_summary.update(data["request_methods"])
 
 if not method_summary:
-    print("❌ No request methods detected in the logs.")
+    print("❌ No request methods detected in the logs.")
 else:
-    for method, count in sorted(method_summary.items(), key=lambda x: x[1], reverse=True):
-        print(f"  {method}: {count} requests")
+    for method, count in sorted(method_summary.items(), key=lambda x: x[1], reverse=True):
+        print(f"  {method}: {count} requests")
 
 print("\n✔ **Top Accessed URLs:**")
 url_summary = Counter()
 for data in ip_activity.values():
-    url_summary.update(data["url_accesses"])
+    url_summary.update(data["url_accesses"])
 
 if not url_summary:
-    print("❌ No URLs detected in the logs.")
+    print("❌ No URLs detected in the logs.")
 else:
-    for url, count in url_summary.most_common(10):
-        print(f"  {url}: {count} accesses")
+    for url, count in url_summary.most_common(10):
+        print(f"  {url}: {count} accesses")
 
 print("\n **Suspicious File Requests:**")
 file_summary = Counter()
 for data in ip_activity.values():
-    if "file_requests" in data:
-        file_summary.update(data["file_requests"])
+    if "file_requests" in data:
+        file_summary.update(data["file_requests"])
 
 if not file_summary:
-    print("❌ No suspicious file requests detected.")
+    print("❌ No suspicious file requests detected.")
 else:
-    for file, count in file_summary.most_common(10):
-        print(f"  {file}: {count} flagged as suspicious")
+    for file, count in file_summary.most_common(10):
+        print(f"  {file}: {count} flagged as suspicious")
 
 print("\n🧭 **Top 5 User-Agent Strings:**")
 if not user_agent_summary:
-    print("❌ No user-agent strings detected.")
+    print("❌ No user-agent strings detected.")
 else:
-    for ua, count in user_agent_summary.most_common(5):
-        print(f"  {ua}: {count} occurrences")
+    for ua, count in user_agent_summary.most_common(5):
+        print(f"  {ua}: {count} occurrences")
 
 print("\n✔ **Hashes Detected:**")
 if not hash_summary:
-    print("❌ No hashes detected in the log entries.")
+    print("❌ No hashes detected in the log entries.")
 else:
-    for hash_type, hash_counts in hash_summary.items():
-        if hash_counts:
-            print(f"\n🔍 {hash_type} Hashes:")
-            for hash_value, count in hash_counts.most_common():
-                print(f"  {hash_value}: {count} occurrences")
+    for hash_type, hash_counts in hash_summary.items():
+        if hash_counts:
+            print(f"\n🔍 {hash_type} Hashes:")
+            for hash_value, count in hash_counts.most_common():
+                print(f"  {hash_value}: {count} occurrences")
 
 print("\n🔐 **Credential Summary:**")
 if not credential_summary["Usernames"] and not credential_summary["Passwords"]:
-    print("❌ No credentials detected.")
+    print("❌ No credentials detected.")
 else:
-    print("\nUsernames:")
-    for user, count in credential_summary["Usernames"].most_common(10):
-        print(f"  {user}: {count} occurrences")
+    print("\nUsernames:")
+    for user, count in credential_summary["Usernames"].most_common(10):
+        print(f"  {user}: {count} occurrences")
 
-    print("\nPasswords:")
-    for password, count in credential_summary["Passwords"].most_common(10):
-        print(f"  {password}: {count} occurrences")
+    print("\nPasswords:")
+    for password, count in credential_summary["Passwords"].most_common(10):
+        print(f"  {password}: {count} occurrences")
 
 # Final timing output
 end_time = time.time()
 minutes, seconds = divmod(int(end_time - start_time), 60)
 print(f"\n⏳ **Log analysis completed in {minutes} minutes and {seconds} seconds**")
+
