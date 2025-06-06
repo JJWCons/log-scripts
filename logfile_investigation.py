@@ -76,16 +76,19 @@ try:
                 if not sip:
                     continue
                     
-                for key, value in entry.items():
+                # ✅ Debugging print to see all keys and values in the entry
+                for key, value in entry.items():  # ✅ Loop must be properly indented
                     print(f"🔎 Log Key: {key} -> Value: {value}")  # Debugging print
 
-                for key, value in entry.items():
+                # ✅ Check if credentials might exist in any fields
+                for key, value in entry.items():  # ✅ Proper indentation
                     lower_value = str(value).lower()  # Convert to lowercase for easier detection
-                    if any(keyword in lower_value for keyword in {"username", "user", "login", "auth"}):
-                        print(f"🟢 Possible Username Field: {key} -> {value}")
-                    if any(keyword in lower_value for keyword in {"password", "pass", "auth"}):
-                        print(f"🟢 Possible Password Field: {key} -> {value}")    
-                            
+                if any(keyword in lower_value for keyword in {"username", "user", "login", "auth"}):
+                    print(f"🟢 Possible Username Field: {key} -> {value}")
+                if any(keyword in lower_value for keyword in {"password", "pass", "auth"}):
+                    print(f"🟢 Possible Password Field: {key} -> {value}")
+
+        # ✅ Continue normal processing for URLs, requests, etc.                
                 if "url" in entry:
                     #print(f"Found URL: {entry['url']}")  # Debugging statement
 
