@@ -174,15 +174,10 @@ else:
 print("\n")
 print("✔ **Request Methods Used:**")
 
-seen_methods = set()
 method_summary = Counter()
 
-for ip, data in ip_activity.items():
-    for method, count in data["request_methods"].items():
-        request_key = f"{ip}-{method}"
-        if request_key not in seen_methods:
-            method_summary[method] += count
-            seen_methods.add(request_key)
+for data in ip_activity.values():
+    method_summary.update(data["request_methods"])
 
 if not method_summary:
     print("❌ No request methods detected in the logs.")
