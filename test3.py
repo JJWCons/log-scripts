@@ -281,18 +281,21 @@ else:
     for password, count in credential_summary["Passwords"].most_common(10):
         print(f"  {password}: {count} occurrences")
 
-print("\n🔐 **Per-IP Credential Attempts (Top 5):**")
-for sip, data in ip_activity.items():
-    if data["attempted_usernames"] or data["attempted_passwords"]:
-        print(f"\n📌 IP: {sip}")
-        if data["attempted_usernames"]:
-            print("  Usernames:")
-            for user, count in data["attempted_usernames"].most_common(5):
-                print(f"    - {user}: {count}")
-        if data["attempted_passwords"]:
-            print("  Passwords:")
-            for pwd, count in data["attempted_passwords"].most_common(5):
-                print(f"    - {pwd}: {count}")
+print("\n🔐 **Top 5 IPs with Credential Attempts:**")
+top_credential_ips = sorted(
+    ip_activity.items(),
+    key=lambda x: sum(x[1]["attempted_usernames"].values()) + sum(x[1]["attempted_passwords"].values()),
+    reverse=True
+)[:5]
+
+if not top_credential_ips:
+    print("❌ No credential attempts detected.")
+else:
+    for sip, data in top_credential_ips:
+        total_usernames = sum(data["attempted_usernames"].values())
+        total_passwords = sum(data["attempted_passwords"].values())
+        total_attempts = total_usernames + total_passwords
+        print(f"- {sip}: {total_attempts} credential attempts detected")
 
 # Final timing output
 end_time = time.time()
