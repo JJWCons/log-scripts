@@ -70,15 +70,18 @@ try:
     with open(logfile_path, "r", encoding="utf-8") as f:
         for line in f:
             try:
+    with open(logfile_path, "r", encoding="utf-8") as f:
+        for line in f:
+            try:
                 entry = json.loads(line.strip())
 
                 sip = entry.get("sip", "").strip()
                 if not sip:
-                    continue
-                    
-                    # ✅ Process URLs for credential detection
-                    if "url" in entry:
-                        url_str = entry["url"].lower()
+                    continue  # ✅ This only skips empty SIPs, NOT the entire URL section
+
+                # ✅ Process URLs for credential detection
+                if "url" in entry:
+                    url_str = entry["url"].lower()
             
                     # ✅ Debugging print to confirm URL format
                     print(f"🌐 Found URL: {url_str}")  
@@ -90,14 +93,15 @@ try:
                         print(f"🔐 Extracted {credential_type}: {credential_value}")  # ✅ Debugging print
                         credential_summary[credential_type][credential_value] += 1  
 
-                    # ✅ Continue normal log processing
-                    if "method" in entry:
-                        ip_activity[sip]["request_methods"][entry["method"].upper()] += 1
+                # ✅ Continue normal log processing
+                if "method" in entry:
+                    ip_activity[sip]["request_methods"][entry["method"].upper()] += 1
 
-    except json.JSONDecodeError:
-        pass  
-    except Exception as e:
-        print(f"❌ Unexpected error: {e}")                # ✅ Continue normal processing for URLs, requests, etc.
+            except json.JSONDecodeError:
+                pass  
+            except Exception as e:
+                print(f"❌ Unexpected error: {e}")  
+
                 if "url" in entry:
                     print(f"🌐 Found URL: {entry['url']}")  # Debugging print        # Continue normal processing for URLs, requests, etc.
                     
