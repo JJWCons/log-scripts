@@ -1,0 +1,18 @@
+# 🔍 Web Honeypot Single IP or Multiple IP Analyzer
+
+This Python script analyzes web honeypot JSON logs to provide a detailed breakdown of activity for one or more specified IP addresses. It's designed for security analysts and researchers who want to investigate suspicious behavior in depth.
+
+## ✨ Features
+
+- **Targeted IP Analysis**: Focus on one or more IPs for forensic-level insights.
+- **Suspicious File Detection**: Flags requests for potentially malicious files (e.g., `.php`, `.exe`, `.env`).
+- **Credential Guessing Detection**: Identifies attempted usernames and passwords from known default lists.
+- **Hash Detection**: Scans for common hash formats (MD5, SHA1, bcrypt, etc.).
+- **User-Agent & Response Code Tracking**: Summarizes request headers and HTTP status codes.
+- **Time Frame Reporting**: Shows first and last seen timestamps for each IP.
+- **Execution Timer**: Displays how long the analysis took.
+
+## 🛠️ Usage
+
+```bash
+python single_Multi_IP.py
