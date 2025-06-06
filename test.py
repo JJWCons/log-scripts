@@ -208,8 +208,7 @@ file_summary = Counter()
 for data in ip_activity.values():
     if "file_requests" in data:
         file_summary.update(data["file_requests"])
-
-
+        
 if not file_summary:
     print("❌ No suspicious file requests detected.")
 else:
