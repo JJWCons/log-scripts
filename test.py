@@ -208,41 +208,41 @@ file_summary = Counter()
 for data in ip_activity.values():
     if "file_requests" in data:
         file_summary.update(data["file_requests"])
-        
+
 if not file_summary:
-    print("❌ No suspicious file requests detected.")
+    print("❌ No suspicious file requests detected.")
 else:
-    for file, count in file_summary.most_common(10):
-        print(f"  {file}: {count} flagged as suspicious")
+    for file, count in file_summary.most_common(10):
+        print(f"  {file}: {count} flagged as suspicious")
 
 print("\n🧭 **Top 5 User-Agent Strings:**")
 if not user_agent_summary:
-    print("❌ No user-agent strings detected.")
+    print("❌ No user-agent strings detected.")
 else:
-    for ua, count in user_agent_summary.most_common(5):
-        print(f"  {ua}: {count} occurrences")
+    for ua, count in user_agent_summary.most_common(5):
+        print(f"  {ua}: {count} occurrences")
 
 print("\n✔ **Hashes Detected:**")
 if not hash_summary:
-    print("❌ No hashes detected in the log entries.")
+    print("❌ No hashes detected in the log entries.")
 else:
-    for hash_type, hash_counts in hash_summary.items():
-        if hash_counts:
-            print(f"\n🔍 {hash_type} Hashes:")
-            for hash_value, count in hash_counts.most_common():
-                print(f"  {hash_value}: {count} occurrences")
+    for hash_type, hash_counts in hash_summary.items():
+        if hash_counts:
+            print(f"\n🔍 {hash_type} Hashes:")
+            for hash_value, count in hash_counts.most_common():
+                print(f"  {hash_value}: {count} occurrences")
 
 print("\n🔐 **Credential Summary:**")
 if not credential_summary["Usernames"] and not credential_summary["Passwords"]:
-    print("❌ No credentials detected.")
+    print("❌ No credentials detected.")
 else:
-    print("\nUsernames:")
-    for user, count in credential_summary["Usernames"].most_common(10):
-        print(f"  {user}: {count} occurrences")
+    print("\nUsernames:")
+    for user, count in credential_summary["Usernames"].most_common(10):
+        print(f"  {user}: {count} occurrences")
 
-    print("\nPasswords:")
-    for password, count in credential_summary["Passwords"].most_common(10):
-        print(f"  {password}: {count} occurrences")
+    print("\nPasswords:")
+    for password, count in credential_summary["Passwords"].most_common(10):
+        print(f"  {password}: {count} occurrences")
 
 # Final timing output
 end_time = time.time()
