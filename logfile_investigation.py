@@ -92,7 +92,7 @@ try:
 
                     # ✅ Continue normal log processing
                     if "method" in entry:
-                    ip_activity[sip]["request_methods"][entry["method"].upper()] += 1
+                        ip_activity[sip]["request_methods"][entry["method"].upper()] += 1
 
     except json.JSONDecodeError:
         pass  
