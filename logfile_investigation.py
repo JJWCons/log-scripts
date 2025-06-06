@@ -76,15 +76,14 @@ try:
                 if not sip:
                     continue
                     
-                for key, value in entry.items():
-                    value_str = str(value).lower()  # ✅ Convert values to lowercase for better detection
+                    for key, value in entry.items():
+                        value_str = str(value).lower()
+                        if re.search(r"(password|pass|auth|login|user)=([\w\d!@#$%^&*()-_+]+)", value_str, re.IGNORECASE):
+                            print(f"🔐 Extracted Possible Credential: {key} -> {value_str}")  # Debugging print
 
-                # ✅ Detect both usernames & passwords inside any field
-                for credential in default_usernames.union(default_passwords):  # ✅ Combine sets for efficiency
-                    if re.search(rf"\b{credential}\b", value_str, re.IGNORECASE):
-                        ip_activity[sip]["credential_attempts"][credential] += 1
-                        print(f"🔐 Credential Found: {credential} in {key}: {value_str}")  # ✅ Debugging print
-                        
+                        if any(keyword in json.dumps(entry).lower() for keyword in {"password", "pass", "auth", "login"}):
+                            print(f"🔎 Raw Log Entry Containing Credentials: {entry}")
+                
                 # ✅ Continue normal processing for URLs, requests, etc.
                 if "url" in entry:
                     print(f"🌐 Found URL: {entry['url']}")  # Debugging print        # Continue normal processing for URLs, requests, etc.
